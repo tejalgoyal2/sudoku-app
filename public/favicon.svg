@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="#1E1F24"/>
+
+  <!-- Grid lines (thin) -->
+  <g stroke="#3A3B42" stroke-width="2">
+    <line x1="195" y1="72" x2="195" y2="440"/>
+    <line x1="317" y1="72" x2="317" y2="440"/>
+    <line x1="72" y1="195" x2="440" y2="195"/>
+    <line x1="72" y1="317" x2="440" y2="317"/>
+  </g>
+
+  <!-- Grid border -->
+  <rect x="72" y="72" width="368" height="368" rx="16" fill="none" stroke="#5C5D66" stroke-width="4"/>
+
+  <!-- Numbers - accent amber for filled, muted for others -->
+  <text x="134" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="72" fill="#E0A830">9</text>
+  <text x="256" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="72" fill="#E8E5DD">5</text>
+  <text x="378" y="283" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="72" fill="#E8E5DD">3</text>
+  <text x="134" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="72" fill="#6EB8E0">7</text>
+  <text x="256" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="72" fill="#E0A830">1</text>
+</svg>
