@@ -2,37 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 
     <!-- PWA Meta -->
-    <meta name="theme-color" content="#131416" />
+    <meta name="theme-color" content="#F6F6F3" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Sudoku" />
-    <meta name="description" content="A clean, ad-free Sudoku app" />
+    <meta name="description" content="A calm, beautiful, ad-free Sudoku with hints that teach, daily puzzles, themes and full keyboard control." />
 
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
-    <!-- Preconnect to font CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&family=IBM+Plex+Mono:wght@500;600&display=swap" />
 
     <title>Sudoku</title>
 
     <style>
-      /* Prevent pull-to-refresh and overscroll on iOS */
-      html, body {
-        margin: 0;
-        padding: 0;
-        overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      body {
-        background: #131416;
-      }
-      /* iOS safe area padding */
+      html, body { margin: 0; padding: 0; overscroll-behavior: none; }
+      body { background: inherit; }
       #root {
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
@@ -40,6 +32,13 @@
         padding-right: env(safe-area-inset-right);
       }
     </style>
+    <script>
+      // Paint the saved theme's background before React loads, so there's no flash.
+      try {
+        var boot = JSON.parse(localStorage.getItem("sudoku_boot") || "null");
+        document.documentElement.style.background = boot ? boot.bg : matchMedia("(prefers-color-scheme: dark)").matches ? "#151517" : "#F6F6F3";
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

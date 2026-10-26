@@ -16,12 +16,18 @@ export default defineConfig({
       manifest: {
         name: "Sudoku",
         short_name: "Sudoku",
-        description: "A clean, ad-free Sudoku app",
+        description: "A calm, beautiful, ad-free Sudoku with hints that teach, daily puzzles and themes.",
+        id: "/",
         start_url: "/",
+        categories: ["games", "puzzle"],
         display: "standalone",
         background_color: "#131416",
         theme_color: "#131416",
-        orientation: "portrait",
+        orientation: "any",
+        shortcuts: [
+          { name: "Daily puzzle", short_name: "Daily", url: "/?start=daily", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+          { name: "Quick easy game", short_name: "Easy", url: "/?start=easy", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+        ],
         icons: [
           {
             src: "/icons/icon-192.png",

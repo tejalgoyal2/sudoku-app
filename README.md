@@ -1,6 +1,21 @@
 # Sudoku
 
-A clean, ad-free Sudoku PWA. Algorithmically generated puzzles, 4 difficulty levels, timer, mistakes, streaks, dark/light mode. Works offline once installed.
+A calm, beautiful, ad-free Sudoku PWA. Works offline once installed. No accounts, no tracking.
+
+## Features
+
+- **Puzzles graded the way people solve them.** A built-in logical solver grades every puzzle by the hardest technique it needs (singles → pointing pairs → pairs/triples → X-Wing, XY-Wing, Swordfish). Every puzzle has one solution and 180° symmetric clues.
+- **Hints that teach.** The first press points you at a region. The second explains the technique and highlights the cells and the candidates it removes. The third makes the move. Mistakes get flagged first.
+- **Daily puzzle.** The same seeded puzzle for everyone each day. Easy on Monday, expert by Sunday. Tracked with a streak and a heatmap.
+- **11 themes, each a palette plus a board and digit set.** Like a chess set, each theme picks its board (plain or checkered boxes, solid or dashed lines, square or round corners), its number keys (raised, flat or outlined), its digit typeface and sometimes one ink detail: Paper, Classic (checkered boxes), Linen, Riso (offset ink), Dusk, Graphite, Midnight (glowing entries), Mocha, Forest, Blueprint (dashed lines, mono digits) and High Contrast, or Auto to follow your system. Nothing is drawn in the page background.
+- **Challenges.** Blitz (a countdown that rewards correct digits), Sudden Death, Pen Only, Fog (you only see around your cursor) and Purist, each with up to three stars.
+- **Full keyboard control.** Arrows (Ctrl/⌘ to jump to the next empty cell), Tab, ⇧+digit for notes, Z/Y undo/redo, H hint, A fill notes, L paint, P pause, T theme, F zen, S stats, ? help.
+- **Painting (digit-first input).** Long-press or right-click a number key to lock it, then tap cells.
+- **Feel.** Highlights glide between cells, pencil marks fade in place, and completed rows get a soft wash. Sounds are synthesized: a soft tactile click with a low note from one warm chord, completions that ring through a small room reverb, in three voices (crisp, soft, bright) that follow the theme or can be picked in Settings. Respects `prefers-reduced-motion`.
+- **Laptop side panel.** On wide screens a left column shows the clock, a box-by-box progress map (click a box to jump there), your best and average times, and, if you ask, the techniques the puzzle needs, ticked off as hints explain them.
+- **Number pad.** Each key shows how many of that digit are left as a 3×3 of dots.
+- **Finish screen.** Badges (Flawless, Personal best, Pure logic), a replay of your solve, and a shareable result with your box-completion "path".
+- **Zen mode, auto-save and resume, paste-a-puzzle import, configurable mistake limit/checking/highlights.**
 
 ## Local Development
 
@@ -10,6 +25,10 @@ npm run dev
 ```
 
 Opens at `http://localhost:5173`. The game is fully playable in the browser during development.
+
+```bash
+npm test           # engine + game-rule tests (node:test, no extra deps)
+```
 
 ## Build & Preview
 
@@ -149,30 +168,37 @@ Cloudflare Pages auto-deploys on every push to `main`. The update is live in abo
 
 ```
 sudoku-app/
-├── public/
-│   ├── favicon.svg              ← SVG icon (source for PNGs)
-│   └── icons/                   ← Generated PNG icons (by build script)
-│       ├── icon-192.png
-│       ├── icon-512.png
-│       └── apple-touch-icon.png
+├── public/favicon.svg            ← SVG icon (source for generated PNGs in public/icons/)
 ├── src/
-│   ├── App.jsx                  ← The entire Sudoku game
-│   └── main.jsx                 ← React entry point
-├── scripts/
-│   └── generate-icons.js        ← Converts SVG → PNG icons
-├── index.html                   ← App shell with PWA meta tags
-├── package.json
-├── vite.config.js               ← Vite + PWA plugin config
-└── .gitignore
+│   ├── main.jsx                  ← React entry point
+│   ├── App.jsx                   ← Screens, settings, stats, global shortcuts
+│   ├── styles.css                ← All styling, driven by theme CSS variables
+│   ├── util.js                   ← Time/date formatting
+│   ├── engine/
+│   │   ├── core.js               ← Grid geometry, bitmask solver, seeded RNG
+│   │   ├── techniques.js         ← Human-style solver: grading + hint steps
+│   │   ├── generator.js          ← Graded, symmetric puzzle generation + daily seed
+│   │   ├── worker.js / client.js ← Off-main-thread generation with prefetch
+│   │   └── engine.test.js        ← Tests
+│   ├── game/
+│   │   ├── state.js              ← Pure game reducer (input, notes, undo/redo, win/loss)
+│   │   ├── hints.js              ← Turns solver steps into staged hints
+│   │   ├── storage.js            ← localStorage: settings, stats, daily history, saved game
+│   │   └── sound.js              ← Web Audio sound palette + haptics
+│   ├── theme/themes.js           ← Theme palettes → CSS custom properties
+│   └── components/               ← Home, Play, Board, Controls, Stats, Panels, dialogs
+├── scripts/generate-icons.js     ← Converts SVG → PNG icons at build time
+├── index.html                    ← App shell with PWA meta tags
+└── vite.config.js                ← Vite + PWA plugin config (manifest, shortcuts)
 ```
 
 ## Tech
 
-- **Vite** — build tool
-- **React 18** — UI
-- **vite-plugin-pwa** — auto-generates service worker + manifest
+- **Vite 8** (Rolldown) + **React 19**
+- **vite-plugin-pwa 2** — service worker, manifest, home-screen shortcuts
+- **Web Workers** for puzzle generation, **Web Audio** for sound, native `<dialog>` for sheets
 - **sharp** — SVG → PNG icon conversion at build time
 - **Cloudflare Pages** — free hosting with auto-deploy
-- **localStorage** — all stats/streaks stored on-device
+- **localStorage** — all stats, streaks and saved games stay on-device (old v1 stats and settings migrate automatically)
 
 No backend. No database. No accounts. No ads. Free forever.

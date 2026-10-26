@@ -7,16 +7,17 @@
     "dev": "vite",
     "build": "node scripts/generate-icons.js && vite build",
     "preview": "vite preview",
+    "test": "node --test \"src/**/*.test.js\"",
     "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "sharp": "^0.33.5",
-    "vite": "^6.0.0",
-    "vite-plugin-pwa": "^0.21.1"
+    "@vitejs/plugin-react": "^6.1.2",
+    "sharp": "^0.35.5",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0"
   }
 }
