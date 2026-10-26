@@ -1,204 +1,29 @@
 # Sudoku
 
-A calm, beautiful, ad-free Sudoku PWA. Works offline once installed. No accounts, no tracking.
+A simple, ad-free Sudoku that works on laptops and phones. Installs as an app and plays offline. No accounts, no tracking.
+
+**Play:** [sudoku.tgoyal.me](https://sudoku.tgoyal.me)
 
 ## Features
 
-- **Puzzles graded the way people solve them.** A built-in logical solver grades every puzzle by the hardest technique it needs (singles → pointing pairs → pairs/triples → X-Wing, XY-Wing, Swordfish). Every puzzle has one solution and 180° symmetric clues.
-- **Hints that teach.** The first press points you at a region. The second explains the technique and highlights the cells and the candidates it removes. The third makes the move. Mistakes get flagged first.
-- **Daily puzzle.** The same seeded puzzle for everyone each day. Easy on Monday, expert by Sunday. Tracked with a streak and a heatmap.
-- **11 themes, each a palette plus a board and digit set.** Like a chess set, each theme picks its board (plain or checkered boxes, solid or dashed lines, square or round corners), its number keys (raised, flat or outlined), its digit typeface and sometimes one ink detail: Paper, Classic (checkered boxes), Linen, Riso (offset ink), Dusk, Graphite, Midnight (glowing entries), Mocha, Forest, Blueprint (dashed lines, mono digits) and High Contrast, or Auto to follow your system. Nothing is drawn in the page background.
-- **Challenges.** Blitz (a countdown that rewards correct digits), Sudden Death, Pen Only, Fog (you only see around your cursor) and Purist, each with up to three stars.
-- **Full keyboard control.** Arrows (Ctrl/⌘ to jump to the next empty cell), Tab, ⇧+digit for notes, Z/Y undo/redo, H hint, A fill notes, L paint, P pause, T theme, F zen, S stats, ? help.
-- **Painting (digit-first input).** Long-press or right-click a number key to lock it, then tap cells.
-- **Feel.** Highlights glide between cells, pencil marks fade in place, and completed rows get a soft wash. Sounds are synthesized: a soft tactile click with a low note from one warm chord, completions that ring through a small room reverb, in three voices (crisp, soft, bright) that follow the theme or can be picked in Settings. Respects `prefers-reduced-motion`.
-- **Laptop side panel.** On wide screens a left column shows the clock, a box-by-box progress map (click a box to jump there), your best and average times, and, if you ask, the techniques the puzzle needs, ticked off as hints explain them.
-- **Number pad.** Each key shows how many of that digit are left as a 3×3 of dots.
-- **Finish screen.** Badges (Flawless, Personal best, Pure logic), a replay of your solve, and a shareable result with your box-completion "path".
-- **Zen mode, auto-save and resume, paste-a-puzzle import, configurable mistake limit/checking/highlights.**
+- **Four difficulties**, graded by the techniques a person needs to solve them. Every puzzle has exactly one solution.
+- **Daily puzzle**, the same for everyone, with a streak.
+- **Hints that teach**: point at the area, explain the technique, then place the digit.
+- **Challenges**: Blitz, Sudden Death, Pen Only, Fog and Purist, each with up to three stars.
+- **11 themes**, each with its own colors, board style, keys and digits.
+- **Keyboard shortcuts** for everything (press `?` in the app).
+- Notes, undo/redo, zen mode, synthesized sounds and auto-save.
 
-## Local Development
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5173`. The game is fully playable in the browser during development.
-
 ```bash
-npm test           # engine + game-rule tests (node:test, no extra deps)
+npm test
+npm run build
 ```
 
-## Build & Preview
-
-```bash
-npm run build      # generates icons + builds production bundle
-npm run preview    # serves the built files locally
-```
-
----
-
-## Deployment Guide: Cloudflare Pages + Your Domain
-
-### Prerequisites
-
-- A GitHub account (free)
-- A Cloudflare account (you already have one — your DNS is there)
-- Node.js 18+ installed on your computer
-- Git installed on your computer
-
----
-
-### Step 1: Set Up the Project Locally
-
-Open your terminal and navigate to where you want the project:
-
-```bash
-# Clone or copy the project folder, then:
-cd sudoku-app
-
-# Install dependencies
-npm install
-
-# Test that it works
-npm run dev
-# Visit http://localhost:5173 in your browser
-# Press Ctrl+C to stop the dev server when done
-```
-
----
-
-### Step 2: Create a GitHub Repository
-
-1. Go to https://github.com/new
-2. Repository name: `sudoku` (or whatever you like)
-3. Set it to **Private** (unless you want it public)
-4. Do NOT check "Add a README" (we already have one)
-5. Click **Create repository**
-
-GitHub will show you a page with setup instructions. Run these commands in your terminal (inside the `sudoku-app` folder):
-
-```bash
-git init
-git add .
-git commit -m "Initial commit - Sudoku PWA"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/sudoku.git
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` with your actual GitHub username.
-
----
-
-### Step 3: Connect Cloudflare Pages
-
-1. Log in to https://dash.cloudflare.com
-2. In the left sidebar, click **Workers & Pages**
-3. Click **Create** (top right)
-4. Click the **Pages** tab
-5. Click **Connect to Git**
-6. Authorize Cloudflare to access your GitHub (if first time)
-7. Select your `sudoku` repository
-8. Configure the build:
-   - **Project name**: `sudoku` (this becomes `sudoku.pages.dev` temporarily)
-   - **Production branch**: `main`
-   - **Framework preset**: `None`
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Node.js version** (under Environment variables): Add variable `NODE_VERSION` = `20`
-9. Click **Save and Deploy**
-
-Wait 1–2 minutes. Cloudflare will install dependencies, build the project, and deploy it. You'll see a green "Success" status and a URL like `sudoku.pages.dev`.
-
-Visit that URL to verify it works.
-
----
-
-### Step 4: Connect Your Domain (sudoku.tgoyal.me)
-
-1. In Cloudflare Pages, go to your `sudoku` project
-2. Click the **Custom domains** tab
-3. Click **Set up a custom domain**
-4. Enter: `sudoku.tgoyal.me` (or just `tgoyal.me` if you want it on the root domain)
-5. Click **Continue**
-6. Cloudflare will automatically add the DNS record since your domain is already on Cloudflare DNS. Click **Activate domain**
-7. Wait a few minutes for DNS to propagate and SSL to activate
-
-Your app is now live at `https://sudoku.tgoyal.me`.
-
----
-
-### Step 5: Add to iPhone Home Screen
-
-1. Open Safari on your iPhone
-2. Go to `https://sudoku.tgoyal.me`
-3. Tap the **Share** button (the square with an arrow at the bottom of the screen)
-4. Scroll down and tap **Add to Home Screen**
-5. It will show the app name "Sudoku" and the grid icon
-6. Tap **Add**
-
-The app now appears on your home screen with its own icon. When you open it:
-- It runs in fullscreen (no Safari browser chrome)
-- It works offline (service worker caches everything)
-- No ads, no account, no tracking
-
----
-
-### Updating the App
-
-Whenever you want to make changes:
-
-```bash
-# Edit files locally
-# Test with: npm run dev
-
-# Push changes
-git add .
-git commit -m "description of changes"
-git push
-```
-
-Cloudflare Pages auto-deploys on every push to `main`. The update is live in about 60 seconds. The service worker will auto-update on your phone next time you open the app.
-
----
-
-## Project Structure
-
-```
-sudoku-app/
-├── public/favicon.svg            ← SVG icon (source for generated PNGs in public/icons/)
-├── src/
-│   ├── main.jsx                  ← React entry point
-│   ├── App.jsx                   ← Screens, settings, stats, global shortcuts
-│   ├── styles.css                ← All styling, driven by theme CSS variables
-│   ├── util.js                   ← Time/date formatting
-│   ├── engine/
-│   │   ├── core.js               ← Grid geometry, bitmask solver, seeded RNG
-│   │   ├── techniques.js         ← Human-style solver: grading + hint steps
-│   │   ├── generator.js          ← Graded, symmetric puzzle generation + daily seed
-│   │   ├── worker.js / client.js ← Off-main-thread generation with prefetch
-│   │   └── engine.test.js        ← Tests
-│   ├── game/
-│   │   ├── state.js              ← Pure game reducer (input, notes, undo/redo, win/loss)
-│   │   ├── hints.js              ← Turns solver steps into staged hints
-│   │   ├── storage.js            ← localStorage: settings, stats, daily history, saved game
-│   │   └── sound.js              ← Web Audio sound palette + haptics
-│   ├── theme/themes.js           ← Theme palettes → CSS custom properties
-│   └── components/               ← Home, Play, Board, Controls, Stats, Panels, dialogs
-├── scripts/generate-icons.js     ← Converts SVG → PNG icons at build time
-├── index.html                    ← App shell with PWA meta tags
-└── vite.config.js                ← Vite + PWA plugin config (manifest, shortcuts)
-```
-
-## Tech
-
-- **Vite 8** (Rolldown) + **React 19**
-- **vite-plugin-pwa 2** — service worker, manifest, home-screen shortcuts
-- **Web Workers** for puzzle generation, **Web Audio** for sound, native `<dialog>` for sheets
-- **sharp** — SVG → PNG icon conversion at build time
-- **Cloudflare Pages** — free hosting with auto-deploy
-- **localStorage** — all stats, streaks and saved games stay on-device (old v1 stats and settings migrate automatically)
-
-No backend. No database. No accounts. No ads. Free forever.
+Built with React 19 and Vite. Hosted on Cloudflare Pages, which deploys every push to `main`. Stats and saved games stay in your browser.
