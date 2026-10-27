@@ -133,13 +133,26 @@ export const sound = {
   // Every copy of a digit placed.
   digit: (d) => { click(V().body); strum([CHORD[d] / 2, CHORD[d], CHORD[d] * 1.5, CHORD[d] * 2], { gain: 0.17, decay: 2 }); },
   hint: () => strum([CHORD[7], CHORD[9]], { gap: 0.07, gain: 0.12, decay: 1.4 }),
-  tick: () => click({ freq: 3200, q: 4, gain: 0.12, len: 0.005 }),
+  // The last seconds of a countdown. The final five become a heartbeat: lub-dub.
+  tick: (urgent) => {
+    if (!urgent) return click({ freq: 3200, q: 4, gain: 0.12, len: 0.005 });
+    thud(70, { gain: 0.32, len: 0.12 }); thud(66, { at: 0.13, gain: 0.22, len: 0.12 });
+  },
   // The full chord, rolled slowly, over a low root.
   win: () => { note(ROOT, { gain: 0.3, decay: 4, wetMul: 1.4 }); strum([CHORD[1], CHORD[3], CHORD[5], CHORD[6], CHORD[8], CHORD[9]], { gap: 0.09, gain: 0.16, decay: 3.2, wetMul: 2 }); },
   lost: () => { thud(82, { gain: 0.35, len: 0.4 }); strum([CHORD[1] / 2, 174.61], { gap: 0.12, gain: 0.14, decay: 2 }); },
   preview: () => { click(V().body); note(CHORD[3], { gain: 0.24 }); note(CHORD[5], { at: 0.12, gain: 0.2 }); },
 };
 
+// ─── HAPTICS ───
+// Android: the Vibration API. Pulses shorter than ~15ms don't register on many phones' motors,
+// so nothing here goes below that.
 export function haptic(pattern) {
   if (haptics) try { navigator.vibrate?.(pattern); } catch {}
 }
+
+// iPhone and iPad have no Vibration API, in any browser. The only haptic iOS gives a web page
+// is the click of a native switch (<input type="checkbox" switch>, Safari 17.4+), and only when
+// a finger really taps it, so <Tap> puts one under each key. See components/Tap.jsx.
+export const IOS_HAPTICS = typeof navigator !== "undefined" && !("vibrate" in navigator) &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));

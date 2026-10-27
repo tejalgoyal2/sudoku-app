@@ -120,7 +120,18 @@ test("challenge rules: sudden death, pen only, countdown with bonus, stars", asy
   assert.equal(s.bonusTime, 4, "re-entering the same cell doesn't farm time");
   s = reducer(s, { type: "input", d: solution[j], i: j, opts: OPTS });
   assert.equal(s.bonusTime, 8);
-  for (let t = 0; t < 308; t++) s = reducer(s, { type: "tick" });
+  for (let t = 0; t < 68; t++) s = reducer(s, { type: "tick" });
+  assert.equal(s.status, "lost");
+  assert.equal(s.fx.reason, "time");
+
+  // Blitz: a wrong digit costs 5 seconds, and can run the clock out on its own.
+  s = newGame({ puzzle, solution, difficulty: "easy", mode: "challenge", challenge: "blitz" });
+  s = reducer(s, { type: "input", d: wrong, i, opts: OPTS });
+  assert.equal(s.bonusTime, -5);
+  assert.equal(s.status, "playing");
+  for (let t = 0; t < 52; t++) s = reducer(s, { type: "tick" });
+  const wrong2 = [1, 2, 3, 4, 5, 6, 7, 8, 9].find((x) => x !== solution[i] && x !== wrong);
+  s = reducer(s, { type: "input", d: wrong2, i, opts: OPTS });
   assert.equal(s.status, "lost");
   assert.equal(s.fx.reason, "time");
 

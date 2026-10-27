@@ -4,6 +4,7 @@ import { TECHNIQUES } from "../engine/techniques.js";
 import { CHALLENGES, timeLeft } from "../game/challenges.js";
 import { dailyStreak } from "../game/storage.js";
 import { Icon } from "./Icons.jsx";
+import { Countdown } from "./Controls.jsx";
 import { fmt } from "../util.js";
 
 // The left column on wide screens: the clock, a map of the boxes, how this solve compares with
@@ -23,8 +24,8 @@ export default function GamePanel({ game, settings, stats, label, limit, paused,
       <section className="panel-block">
         {label}
         {showClock && (
-          <div className={`panel-timer tnum ${left !== null && left <= 30 ? "low" : ""}`} aria-label={left !== null ? "Time left" : "Elapsed time"}>
-            {fmt(left !== null ? Math.max(0, left) : game.elapsed)}
+          <div className="panel-timer">
+            {left !== null ? <Countdown game={game} /> : <span className="tnum" aria-label="Elapsed time">{fmt(game.elapsed)}</span>}
           </div>
         )}
         <div className="panel-row">

@@ -52,8 +52,11 @@ function afterPlacement(prev, next, i, d, opts) {
   if (!correct) {
     const mistakes = s.mistakes + 1;
     const limit = opts.autoCheck && !s.rescued ? opts.mistakeLimit : 0;
-    const lost = limit > 0 && mistakes >= limit;
-    return { ...s, mistakes, status: lost ? "lost" : s.status, fx: fx(s, lost ? "lost" : "error", { cells: [i], digit: d, silent: !opts.autoCheck }) };
+    // On a countdown a wrong digit costs time, more than a right one earns, so guessing doesn't pay.
+    const bonusTime = s.bonusTime - (s.rules?.penalty || 0);
+    const outOfTime = !!s.rules?.countdown && s.elapsed >= s.rules.countdown + bonusTime;
+    const lost = outOfTime || (limit > 0 && mistakes >= limit);
+    return { ...s, mistakes, bonusTime, status: lost ? "lost" : s.status, fx: fx(s, lost ? "lost" : "error", { cells: [i], digit: d, silent: !opts.autoCheck, reason: outOfTime ? "time" : undefined }) };
   }
 
   if (s.rules?.bonus && !s.awarded.includes(i)) s = { ...s, bonusTime: s.bonusTime + s.rules.bonus, awarded: [...s.awarded, i] };

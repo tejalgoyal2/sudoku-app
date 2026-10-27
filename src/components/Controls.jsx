@@ -1,8 +1,34 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Icon } from "./Icons.jsx";
 import { TECHNIQUES } from "../engine/techniques.js";
+import { timeLeft } from "../game/challenges.js";
+import { fmt } from "../util.js";
+import { Tap } from "./Tap.jsx";
 
-export function Toolbar({ game, onUndo, onErase, onNotes, onAutoNotes, onHint, hintOpen }) {
+// The countdown on timed challenges. Under 15 seconds it turns red and the digits beat once a
+// second (keyed on the time so each new second replays the beat); the last 5 beat harder.
+// Time won or lost floats off beside it.
+export const urgency = (left) => (left === null ? "" : left <= 5 ? "critical" : left <= 15 ? "low" : "");
+
+export function Countdown({ game, className = "" }) {
+  const left = Math.max(0, timeLeft(game));
+  const prev = useRef(game.bonusTime);
+  const [delta, setDelta] = useState(null);
+  useEffect(() => {
+    const d = game.bonusTime - prev.current;
+    prev.current = game.bonusTime;
+    if (d) setDelta({ d, key: game.fx.seq });
+  }, [game.bonusTime]);
+  const level = urgency(left);
+  return (
+    <span className={`countdown ${className} ${level}`} role="timer" aria-label={`${left} seconds left`}>
+      <span className="tnum" key={level ? left : "calm"}>{fmt(left)}</span>
+      {delta && <span key={delta.key} className={`time-delta ${delta.d > 0 ? "up" : "down"}`} aria-hidden>{delta.d > 0 ? "+" : "−"}{Math.abs(delta.d)}s</span>}
+    </span>
+  );
+}
+
+export function Toolbar({ game, onUndo, onErase, onNotes, onAutoNotes, onHint, hintOpen, haptics }) {
   const off = game.status !== "playing";
   const rules = game.rules || {};
   const tools = [
@@ -18,6 +44,7 @@ export function Toolbar({ game, onUndo, onErase, onNotes, onAutoNotes, onHint, h
         <button key={t.key} className={`tool tool-${t.key} ${t.on ? "on" : ""}`} onClick={t.action} disabled={t.disabled} title={`${t.label} (${t.kbd})`} aria-pressed={t.toggle || t.key === "hint" ? !!t.on : undefined}>
           <span className="tool-icon">{t.icon}</span>
           <span className="tool-label">{t.label}</span>
+          <Tap on={haptics && !t.disabled} />
         </button>
       ))}
     </div>
@@ -32,7 +59,7 @@ const Pips = ({ left }) => (
 
 // Tap a key to fill the selected cell. Long-press or right-click locks a digit
 // so you can paint it across the board ("digit-first" input).
-export function NumberPad({ game, counts, onDigit, onLock, pressed }) {
+export function NumberPad({ game, counts, onDigit, onLock, pressed, haptics }) {
   const timer = useRef(null);
   const longPressed = useRef(false);
   const off = game.status !== "playing";
@@ -65,6 +92,7 @@ export function NumberPad({ game, counts, onDigit, onLock, pressed }) {
           >
             <span className="num">{d}</span>
             <Pips left={left} />
+            <Tap on={haptics && !off && !(done && !locked)} />
           </button>
         );
       })}

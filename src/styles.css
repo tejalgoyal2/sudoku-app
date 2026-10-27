@@ -189,7 +189,6 @@ button.list-row:active { background: color-mix(in srgb, var(--text) 6%, transpar
 .panel-block { display: flex; flex-direction: column; gap: 10px; padding: 16px 0; }
 .panel-block + .panel-block { border-top: 1px solid var(--line); }
 .panel-timer { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
-.panel-timer.low { color: var(--error); }
 .panel-row { display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
 .panel-dim { font-size: 13px; color: var(--text-dim); }
 .panel-pause { height: 32px; padding: 0 10px; font-size: 13px; gap: 6px; }
@@ -222,13 +221,50 @@ button.list-row:active { background: color-mix(in srgb, var(--text) 6%, transpar
 .stat-row { display: flex; align-items: center; gap: 12px; }
 .timer { font-size: 15px; font-weight: 600; color: var(--text-dim); min-width: 44px; text-align: right; }
 .timer.countdown { color: var(--text); }
-.timer.countdown.low { color: var(--error); }
+
+/* Countdown: calm until 15s, then a red beat on every second, harder for the last 5. */
+.countdown { position: relative; display: inline-flex; transition: color 0.3s; }
+.countdown > .tnum { display: inline-block; }
+.countdown.low, .countdown.critical { color: var(--error); }
+.countdown.low > .tnum { animation: beat 1s var(--ease) both; }
+.countdown.critical > .tnum { animation: beat-hard 1s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes beat {
+  0% { transform: scale(1.12); text-shadow: 0 0 0.5em color-mix(in srgb, var(--error) 55%, transparent); }
+  60%, 100% { transform: scale(1); text-shadow: 0 0 0 transparent; }
+}
+@keyframes beat-hard {
+  0% { transform: scale(1.28); text-shadow: 0 0 0.7em color-mix(in srgb, var(--error) 85%, transparent); }
+  70%, 100% { transform: scale(1); text-shadow: 0 0 0.25em color-mix(in srgb, var(--error) 35%, transparent); }
+}
+.time-delta {
+  position: absolute; left: 100%; top: 0; margin-left: 6px; font-size: 0.5em; font-weight: 700; white-space: nowrap;
+  pointer-events: none; animation: float-off 1s var(--ease) forwards;
+}
+.time-delta.up { color: var(--success); }
+.time-delta.down { color: var(--error); }
+.stat-row .time-delta { left: auto; right: 0; top: auto; bottom: 100%; margin: 0 0 2px; font-size: 12px; }
+@keyframes float-off {
+  0% { opacity: 0; transform: translateY(6px); }
+  15% { opacity: 1; transform: translateY(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
 .mistake-marks { display: flex; gap: 4px; }
 .mistake-marks i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); opacity: 0.4; transition: background-color 0.2s, opacity 0.2s; }
 .mistake-marks i.hit { background: var(--error); border-color: var(--error); opacity: 1; animation: pop 0.3s var(--spring); }
 .mistake-count { font-size: 13px; font-weight: 600; color: var(--error); }
 .countdown-bar { width: var(--board-size); height: 3px; border-radius: 2px; background: var(--surface2); overflow: hidden; margin-top: -6px; }
-.countdown-bar i { display: block; height: 100%; background: var(--accent); transform-origin: left; transition: transform 1s linear; }
+.countdown-bar i { display: block; height: 100%; background: var(--accent); transform-origin: left; transition: transform 1s linear, background-color 0.3s; }
+.countdown-bar.low i, .countdown-bar.critical i { background: var(--error); }
+.countdown-bar.critical { overflow: visible; }
+.countdown-bar.critical i { border-radius: inherit; animation: bar-glow 1s ease-out infinite; }
+@keyframes bar-glow { 0% { box-shadow: 0 0 10px 1px color-mix(in srgb, var(--error) 70%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+/* The last five seconds: the board's edge pulses red. */
+.play[data-urgency="critical"] .board { animation: board-alarm 1s ease-out infinite; }
+@keyframes board-alarm {
+  0% { box-shadow: var(--shadow), 0 0 0 3px color-mix(in srgb, var(--error) 70%, transparent), 0 0 32px color-mix(in srgb, var(--error) 35%, transparent); }
+  100% { box-shadow: var(--shadow), 0 0 0 3px transparent, 0 0 32px transparent; }
+}
 .side-note { text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.45; }
 .side-note b { color: var(--accent); }
 .replay-card { padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; font-weight: 600; }
@@ -326,8 +362,12 @@ html[data-ink="glow"] .board .digit.user { text-shadow: 0 0 0.45em color-mix(in 
 
 /* ─── TOOLS & NUMBER PAD ─── */
 .toolbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+/* iPhone haptics: see components/Tap.jsx. */
+.tap { position: absolute; inset: 0; border-radius: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+.tap input { position: absolute; width: 1px; height: 1px; margin: 0; visibility: hidden; pointer-events: none; }
+
 .tool {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 12px;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 12px;
   font-size: 12px; font-weight: 600; color: var(--text-dim); transition: background-color 0.15s, color 0.15s, transform 0.12s;
 }
 .tool:hover:not(:disabled) { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
@@ -528,4 +568,7 @@ input[type="range"] { accent-color: var(--accent); width: 140px; }
   *, *::before, *::after, ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
     animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important;
   }
+  /* No flashing: the warnings hold still instead. */
+  .play[data-urgency="critical"] .board { animation: none; box-shadow: var(--shadow), 0 0 0 3px var(--error); }
+  .countdown-bar.critical i { animation: none; }
 }

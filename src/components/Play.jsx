@@ -4,7 +4,7 @@ import { DIFFICULTIES } from "../engine/generator.js";
 import { computeHint } from "../game/hints.js";
 import { sound, haptic } from "../game/sound.js";
 import Board, { LoadingBoard } from "./Board.jsx";
-import { Toolbar, NumberPad, HintCard } from "./Controls.jsx";
+import { Toolbar, NumberPad, HintCard, Countdown, urgency } from "./Controls.jsx";
 import { WinDialog, LostDialog } from "./EndDialogs.jsx";
 import GamePanel from "./GamePanel.jsx";
 import { Icon } from "./Icons.jsx";
@@ -49,35 +49,35 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
     const pop = () => origin !== undefined && setFresh((m) => ({ ...m, [origin]: f.seq }));
 
     switch (f.type) {
-      case "place": sound.place(f.digit); haptic(6); pop(); break;
-      case "note": sound.note(f.digit); break;
+      case "place": sound.place(f.digit); haptic(15); pop(); break;
+      case "note": sound.note(f.digit); haptic(15); break;
       case "erase": sound.erase(); break;
       case "undo": case "redo": sound.undo(); break;
       case "auto-notes": sound.hint(); break;
       case "error":
         if (f.silent) { sound.place(f.digit); pop(); break; }
-        sound.error(); haptic([18, 40, 18]);
+        sound.error(); haptic([30, 60, 30]);
         setWaves((w) => ({ ...w, shake: origin }));
         setTimeout(() => setWaves((w) => (w.shake === origin ? { ...w, shake: null } : w)), 420);
         break;
       case "unit":
-        sound.unit(f.digit, f.units.length); haptic(14); pop();
+        sound.unit(f.digit, f.units.length); haptic(25); pop();
         mark([...new Set(f.units.flatMap((u) => UNITS[u]))], "unit", (i) => dist(origin, i) * 55);
         break;
       case "digit": {
-        sound.digit(f.digit); haptic(10); pop();
+        sound.digit(f.digit); haptic([20, 40, 20]); pop();
         const cells = game.values.flatMap((v, i) => (v === f.digit ? [i] : []));
         mark(cells, "digit", (i) => dist(origin, i) * 40);
         break;
       }
       case "hint": sound.hint(); if (f.cells.length) mark(f.cells, "hint", () => 0); break;
       case "won":
-        pop(); sound.win(); haptic([20, 60, 20, 60, 40]);
+        pop(); sound.win(); haptic([30, 70, 30, 70, 60]);
         mark([...Array(81).keys()], "win", (i) => dist(origin, i) * 70);
         setTimeout(() => setEndOpen(true), 1500);
         break;
       case "lost":
-        sound.lost(); haptic([40, 60, 80]);
+        sound.lost(); haptic([60, 80, 120]);
         if (f.reason === "time") toast("Time's up!");
         setWaves((w) => ({ ...w, shake: origin }));
         setTimeout(() => setEndOpen(true), 700);
@@ -95,7 +95,11 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
   }, [running, act]);
 
   const left = timeLeft(game);
-  useEffect(() => { if (running && left !== null && left <= 10 && left > 0) sound.tick(); }, [left, running]);
+  useEffect(() => {
+    if (!running || left === null || left > 10 || left <= 0) return;
+    sound.tick(left <= 5);
+    if (left <= 5) haptic(20);
+  }, [left, running]);
 
   useEffect(() => {
     const onVis = () => { if (document.hidden && gameRef.current?.status === "playing") setPaused(true); };
@@ -259,7 +263,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
   ) : <span className="game-label">Generating…</span>;
 
   return (
-    <div className="play">
+    <div className="play" data-urgency={running ? urgency(left) || undefined : undefined}>
       {game && !loading && (
         <GamePanel
           key={game.id} game={game} settings={settings} stats={stats} label={label} limit={limit} seen={seen}
@@ -277,7 +281,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
                 </span>
               ) : game.mistakes > 0 && <span className="mistake-count">{game.mistakes} ✕</span>)}
               {left !== null ? (
-                <span className={`timer countdown tnum ${left <= 30 ? "low" : ""}`} aria-label="Time left" key={game.bonusTime}>{fmt(Math.max(0, left))}</span>
+                <Countdown game={game} className="timer" key={game.id} />
               ) : settings.showTimer && !settings.zen && <span className="timer tnum" aria-label="Elapsed time">{fmt(game.elapsed)}</span>}
               {game.status === "playing" && (
                 <button className="icon-btn sm" onClick={() => setPaused((p) => !p)} aria-label={paused ? "Resume" : "Pause"} title="Pause (P)">
@@ -288,7 +292,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
           )}
         </div>
         {left !== null && game && !loading && (
-          <div className="countdown-bar"><i style={{ transform: `scaleX(${Math.max(0, left) / (game.rules.countdown + game.bonusTime)})` }} /></div>
+          <div className={`countdown-bar ${urgency(left)}`}><i style={{ transform: `scaleX(${Math.min(1, Math.max(0, left) / game.rules.countdown)})` }} /></div>
         )}
 
         {!game || loading ? <LoadingBoard /> : (
@@ -324,8 +328,8 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
             </div>
           ) : (
             <>
-              <Toolbar game={game} onUndo={undo} onErase={erase} onNotes={toggleNotes} onAutoNotes={autoNotes} onHint={hintAction} hintOpen={!!hint} />
-              <NumberPad game={game} counts={counts} onDigit={onPadDigit} onLock={(d) => { act({ type: "lock-digit", d }); haptic(12); }} pressed={pressed} />
+              <Toolbar game={game} onUndo={undo} onErase={erase} onNotes={toggleNotes} onAutoNotes={autoNotes} onHint={hintAction} hintOpen={!!hint} haptics={settings.haptics} />
+              <NumberPad game={game} counts={counts} onDigit={onPadDigit} onLock={(d) => { act({ type: "lock-digit", d }); haptic(20); }} pressed={pressed} haptics={settings.haptics} />
               {game.lockedDigit > 0 && (
                 <p className="side-note">
                   Painting <b>{game.lockedDigit}</b>. Tap cells to place it, tap the key again to stop.
