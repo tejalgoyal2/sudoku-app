@@ -22,7 +22,7 @@ export default defineConfig({
         start_url: "/",
         categories: ["games", "puzzle"],
         display: "standalone",
-        background_color: "#141413",
+        background_color: "#16233F",
         theme_color: "#F6F6F3",
         orientation: "any",
         shortcuts: [

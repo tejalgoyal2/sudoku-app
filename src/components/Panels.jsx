@@ -3,6 +3,7 @@ import Sheet from "./Sheet.jsx";
 import { THEMES, THEME_KEYS, themeVars, themeAttrs } from "../theme/themes.js";
 import { sound, VOICES } from "../game/sound.js";
 import { Icon } from "./Icons.jsx";
+import { LINKS } from "../links.js";
 import { TECHNIQUES } from "../engine/techniques.js";
 import { parsePuzzle, countSolutions, solve } from "../engine/core.js";
 import { grade } from "../engine/techniques.js";
@@ -12,10 +13,23 @@ const Switch = ({ checked, onChange, label }) => (
   <button className="switch" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)} />
 );
 
-function Setting({ label, desc, children }) {
+// `desc` is always shown; `info` hides behind a small ⓘ, for settings whose name says enough.
+function Setting({ label, desc, info, children }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="setting">
-      <div><div className="label">{label}</div>{desc && <div className="desc">{desc}</div>}</div>
+      <div>
+        <div className="label">
+          {label}
+          {info && (
+            <button className={`info-btn ${open ? "on" : ""}`} onClick={() => setOpen(!open)} aria-label={`About ${label}`} aria-expanded={open}>
+              <Icon.info width={15} height={15} />
+            </button>
+          )}
+        </div>
+        {desc && <div className="desc">{desc}</div>}
+        {info && open && <div className="desc info-text">{info}</div>}
+      </div>
       {children}
     </div>
   );
@@ -38,7 +52,8 @@ function Swatch({ k, on, onPick, label }) {
   );
 }
 
-// How to put the app on a home screen. Shown first until it's installed.
+// How to put the app on a phone's home screen. Phones only (on a computer it's just a website),
+// shown first until it's installed.
 const STEPS = {
   ios: [
     <>In Safari, tap <b>Share</b> <Icon.share width={15} height={15} className="inline-icon" /> (it may be hiding behind <b>•••</b>).</>,
@@ -49,11 +64,6 @@ const STEPS = {
     <>In Chrome, tap the <b>⋮</b> menu, top right.</>,
     <>Tap <b>Add to Home screen</b> (or <b>Install app</b>).</>,
     <>Tap <b>Install</b>. Your thumb says thanks.</>,
-  ],
-  desktop: [
-    <>In Chrome or Edge, click the install icon at the right end of the address bar.</>,
-    <>Click <b>Install</b>. It gets its own window and a spot in your dock.</>,
-    <>Safari on a Mac: <b>File → Add to Dock</b>. Same deal.</>,
   ],
 };
 
@@ -68,7 +78,7 @@ function InstallGuide() {
       ) : (
         <>
           <div className="segmented" role="radiogroup" aria-label="Device">
-            {[["ios", "iPhone"], ["android", "Android"], ["desktop", "Laptop"]].map(([k, l]) => (
+            {[["ios", "iPhone"], ["android", "Android"]].map(([k, l]) => (
               <button key={k} role="radio" aria-checked={os === k} className={os === k ? "on" : ""} onClick={() => setOs(k)}>{l}</button>
             ))}
           </div>
@@ -83,21 +93,21 @@ export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVo
   const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
-      {!isInstalled() && <>
+      {!isInstalled() && platform() !== "desktop" && <>
         <div className="section-title first">Put it on your home screen</div>
         <InstallGuide />
       </>}
-      <div className={`section-title ${isInstalled() ? "first" : ""}`}>Theme <kbd>T</kbd></div>
+      <div className={`section-title ${isInstalled() || platform() === "desktop" ? "first" : ""}`}>Theme <kbd>T</kbd></div>
       <div className="swatches">
         <Swatch k={dark ? "graphite" : "paper"} label="Auto" on={settings.theme === "auto"} onPick={() => pickTheme("auto")} />
         {THEME_KEYS.map((k) => <Swatch key={k} k={k} label={THEMES[k].name} on={settings.theme === k} onPick={() => pickTheme(k)} />)}
       </div>
 
       <div className="section-title">Play</div>
-      <Setting label="Zen mode" desc="Hide the timer and mistakes. No mistake limit. Just you and the grid.">
+      <Setting label="Zen mode" info="Hide the timer and mistakes. No mistake limit. Just you and the grid.">
         <Switch label="Zen mode" checked={settings.zen} onChange={(zen) => set({ zen })} />
       </Setting>
-      <Setting label="Check mistakes" desc="Flag wrong digits right away.">
+      <Setting label="Check mistakes" info="Flag wrong digits right away.">
         <Switch label="Check mistakes" checked={settings.autoCheck} onChange={(autoCheck) => set({ autoCheck })} />
       </Setting>
       <Setting label="Mistake limit">
@@ -110,7 +120,7 @@ export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVo
       <Setting label="Show timer">
         <Switch label="Show timer" checked={settings.showTimer} onChange={(showTimer) => set({ showTimer })} />
       </Setting>
-      <Setting label="Auto-remove notes" desc="Placing a digit clears it from notes in the same row, column and box.">
+      <Setting label="Auto-remove notes" info="Placing a digit clears it from notes in the same row, column and box.">
         <Switch label="Auto-remove notes" checked={settings.autoRemoveNotes} onChange={(autoRemoveNotes) => set({ autoRemoveNotes })} />
       </Setting>
 
@@ -118,10 +128,10 @@ export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVo
       <Setting label="Row, column & box">
         <Switch label="Highlight row, column and box" checked={settings.highlightPeers} onChange={(highlightPeers) => set({ highlightPeers })} />
       </Setting>
-      <Setting label="Matching digits" desc="Also lights up matching notes.">
+      <Setting label="Matching digits" info="Also lights up matching notes.">
         <Switch label="Highlight matching digits" checked={settings.highlightSame} onChange={(highlightSame) => set({ highlightSame })} />
       </Setting>
-      <Setting label="Rule conflicts" desc="Underline digits that clash in a row, column or box.">
+      <Setting label="Rule conflicts" info="Underline digits that clash in a row, column or box.">
         <Switch label="Highlight conflicts" checked={settings.highlightConflicts} onChange={(highlightConflicts) => set({ highlightConflicts })} />
       </Setting>
 
@@ -144,10 +154,15 @@ export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVo
           <input type="range" min="0.05" max="1" step="0.05" value={settings.volume} onChange={(e) => set({ volume: +e.target.value })} aria-label="Volume" />
         </Setting>
       )}
-      <Setting label="Haptics" desc="Vibration on supported devices.">
+      <Setting label="Haptics" info="Vibration on supported devices.">
         <Switch label="Haptics" checked={settings.haptics} onChange={(haptics) => set({ haptics })} />
       </Setting>
-      <button className="link settings-help" onClick={onHelp}><Icon.help width={15} height={15} />How to play and shortcuts</button>
+      <div className="section-title">About</div>
+      <div className="about">
+        <button className="link" onClick={onHelp}><Icon.help width={15} height={15} />How to play and shortcuts</button>
+        <a className="link" href={LINKS.github} target="_blank" rel="noopener noreferrer"><Icon.github width={15} height={15} />Source on GitHub</a>
+        <a className="link" href={LINKS.portfolio} target="_blank" rel="noopener noreferrer"><Icon.external width={15} height={15} />Made by Tejal Goyal</a>
+      </div>
     </Sheet>
   );
 }

@@ -129,4 +129,5 @@ export function parsePuzzle(text) {
   return [...chars].map((ch) => (/[1-9]/.test(ch) ? +ch : 0));
 }
 
-export const puzzleToString = (values) => values.map((v) => v || ".").join("");
+// Unused: the inverse of parsePuzzle, for a future "copy puzzle" button.
+// export const puzzleToString = (values) => values.map((v) => v || ".").join("");

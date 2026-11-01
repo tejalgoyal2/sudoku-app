@@ -137,4 +137,5 @@ export function saveGame(game) {
   const { fx, ...rest } = game;
   write(KEYS.game, { ...rest, past: rest.past.slice(-2000), future: [] });
 }
-export const clearGame = () => remove(KEYS.game);
+// Unused: saveGame already removes finished games.
+// export const clearGame = () => remove(KEYS.game);

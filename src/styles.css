@@ -158,6 +158,11 @@ button.list-row:active { background: color-mix(in srgb, var(--text) 6%, transpar
 
 .home-foot { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; align-items: center; margin-top: 28px; font-size: 13px; color: var(--text-dim); }
 .home-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.credit { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; font-size: 12.5px; color: var(--text-dim); }
+.credit a { color: var(--text); font-weight: 600; text-decoration: none; }
+.credit a:hover { color: var(--accent); }
+.credit-gh { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
+.credit-gh:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
 
 .mini-board { width: var(--s); height: var(--s); flex: none; display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; padding: 3px; border-radius: 8px; background: var(--surface2); }
 .mini-board i { border-radius: 1px; background: var(--line); }
@@ -490,12 +495,18 @@ html[data-ink="glow"] .board .digit.user { text-shadow: 0 0 0.45em color-mix(in 
 .setting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 11px 0; }
 .setting + .setting { border-top: 1px solid var(--line); }
 .setting .label { font-size: 15px; font-weight: 500; }
+.setting > div:first-child { flex: 1 1 150px; min-width: 0; }
+.setting .label { display: flex; align-items: center; gap: 2px; }
+.info-btn { display: grid; place-items: center; width: 28px; height: 28px; margin: -6px 0; border-radius: 50%; color: var(--text-dim); opacity: 0.7; transition: opacity 0.15s, color 0.15s; }
+.info-btn:hover, .info-btn.on { opacity: 1; color: var(--accent); }
+.setting .info-text { animation: fadeIn 0.2s ease; }
 .setting .desc { font-size: 13px; color: var(--text-dim); margin-top: 1px; }
 .switch { position: relative; width: 44px; height: 26px; flex: none; border-radius: 13px; background: var(--line); transition: background-color 0.2s; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.22s var(--ease); }
 .switch[aria-checked="true"] { background: var(--accent); }
 .switch[aria-checked="true"]::after { transform: translateX(18px); }
-.settings-help { margin-top: 20px; }
+.about { display: flex; flex-direction: column; align-items: flex-start; margin-left: -8px; }
+.about a { text-decoration: none; }
 .install { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 4px 0 8px; }
 .install-lede { font-size: 14px; color: var(--text-dim); line-height: 1.45; }
 .install-steps { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: step; }

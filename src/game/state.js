@@ -170,11 +170,12 @@ export function reducer(state, action) {
       return s ? { ...s, fx: fx(s, "auto-notes", { cells: changes.map((c) => c[0]) }) } : state;
     }
 
-    case "clear-notes": {
-      const changes = [];
-      for (let i = 0; i < 81; i++) if (state.notes[i]) changes.push([i, state.values[i], 0]);
-      return commit(state, changes) || state;
-    }
+    // Unused: nothing dispatches "clear-notes" yet. Kept for a future "clear all notes" button.
+    // case "clear-notes": {
+    //   const changes = [];
+    //   for (let i = 0; i < 81; i++) if (state.notes[i]) changes.push([i, state.values[i], 0]);
+    //   return commit(state, changes) || state;
+    // }
 
     // A hint either fixes a mistake or walks a logical chain that ends in a placement.
     case "apply-hint": {

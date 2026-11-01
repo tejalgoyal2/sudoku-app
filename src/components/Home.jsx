@@ -6,6 +6,7 @@ import { CHALLENGES, CHALLENGE_KEYS } from "../game/challenges.js";
 import { todayKey } from "../game/storage.js";
 import { MiniBoard, PreviewBoard } from "./Board.jsx";
 import { Icon } from "./Icons.jsx";
+import { LINKS } from "../links.js";
 import { fmt, fmtDate, greeting } from "../util.js";
 
 function Week({ stats, today }) {
@@ -139,6 +140,10 @@ export default function Home({ stats, saved, onResume, onStart, onDaily, onChall
         <button className="link" onClick={onHelp}><Icon.help width={15} height={15} />How to play</button>
         <span className="hide-sm">Press <kbd>?</kbd> for keyboard shortcuts</span>
       </footer>
+      <p className="credit">
+        <span>Made by <a href={LINKS.portfolio} target="_blank" rel="noopener noreferrer">Tejal Goyal</a></span>
+        <a className="credit-gh" href={LINKS.github} target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub" title="Source on GitHub"><Icon.github width={16} height={16} /></a>
+      </p>
     </div>
   );
 }
