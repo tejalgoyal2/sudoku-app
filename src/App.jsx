@@ -203,7 +203,7 @@ export default function App() {
       <ViewTransition key={screen} enter="vt-in" exit="vt-out">
         <main className="main">
           {screen === "home" && (
-            <Home stats={stats} saved={playing} onResume={resume} onStart={startGame} onDaily={startDaily} onChallenge={startChallenge} onImport={() => setDialog("import")} />
+            <Home stats={stats} saved={playing} onResume={resume} onStart={startGame} onDaily={startDaily} onChallenge={startChallenge} onImport={() => setDialog("import")} onHelp={() => setDialog("help")} />
           )}
           {screen === "play" && (
             <Play
@@ -215,7 +215,7 @@ export default function App() {
         </main>
       </ViewTransition>
 
-      <SettingsSheet open={dialog === "settings"} onClose={() => setDialog(null)} settings={settings} set={set} pickTheme={pickTheme} themeVoice={THEMES[themeKey].voice} />
+      <SettingsSheet open={dialog === "settings"} onClose={() => setDialog(null)} settings={settings} set={set} pickTheme={pickTheme} themeVoice={THEMES[themeKey].voice} onHelp={() => setDialog("help")} />
       <HelpSheet open={dialog === "help"} onClose={() => setDialog(null)} />
       <ImportSheet open={dialog === "import"} onClose={() => setDialog(null)} onPlay={startCustom} />
 

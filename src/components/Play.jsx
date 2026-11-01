@@ -314,7 +314,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
       </div>
 
       {game && !loading && (
-        <div className="side">
+        <div className={`side ${hint ? "hinting" : ""}`}>
           {hint && (
             <HintCard
               hint={hint.hint} stage={hint.stage} step={hint.step}

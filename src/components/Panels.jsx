@@ -79,7 +79,7 @@ function InstallGuide() {
   );
 }
 
-export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVoice }) {
+export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVoice, onHelp }) {
   const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
@@ -147,6 +147,7 @@ export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVo
       <Setting label="Haptics" desc="Vibration on supported devices.">
         <Switch label="Haptics" checked={settings.haptics} onChange={(haptics) => set({ haptics })} />
       </Setting>
+      <button className="link settings-help" onClick={onHelp}><Icon.help width={15} height={15} />How to play and shortcuts</button>
     </Sheet>
   );
 }

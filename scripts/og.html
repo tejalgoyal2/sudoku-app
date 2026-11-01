@@ -9,33 +9,33 @@
 <meta charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap" />
 <style>
-  :root { --bg: #F6F6F3; --ink: #1D1D1B; --dim: #6F6F69; --blue: #2C5BD0; --sel: #D6E1FA; --peer: #EEF1F6; --same: #C6D5F7; --line: #E2E2DC; }
+  :root { --bg: #141413; --ink: #F3F0E8; --dim: #A39E93; --accent: #F2B84B; --surface: #1D1C1A; --sel: #463A1E; --peer: #24231F; --same: #3D3420; --line: #34322D; --strong: #8C8778; }
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--bg); font-family: Figtree, system-ui, sans-serif; color: var(--ink); }
   .card { display: flex; align-items: center; gap: 64px; height: 100%; padding: 0 64px 0 76px; }
   .copy { flex: 1; display: flex; flex-direction: column; }
   .title { display: flex; align-items: center; gap: 22px; }
-  .title img { width: 92px; height: 92px; }
+  .title img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 0 0 2px #2F2D29; }
   h1 { font-size: 88px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
   .tag { margin-top: 26px; font-size: 32px; font-weight: 600; letter-spacing: -0.01em; color: var(--dim); }
   ul { list-style: none; padding: 0; margin-top: 34px; display: flex; flex-direction: column; gap: 15px; }
   li { display: flex; align-items: center; gap: 16px; font-size: 26px; font-weight: 600; letter-spacing: -0.005em; }
-  li::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--blue); flex: none; }
-  .url { margin-top: 38px; font-size: 24px; font-weight: 700; color: var(--blue); }
+  li::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); flex: none; }
+  .url { margin-top: 38px; font-size: 24px; font-weight: 700; color: var(--accent); }
 
-  .board { position: relative; width: 470px; height: 470px; flex: none; background: #fff; border-radius: 16px; overflow: hidden;
-    display: grid; grid-template-columns: repeat(9, 1fr); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 18px 48px -18px rgb(0 0 0 / 0.22); }
-  .board::after { content: ""; position: absolute; inset: 0; border: 3px solid #3A3A36; border-radius: inherit; pointer-events: none; }
+  .board { position: relative; width: 470px; height: 470px; flex: none; background: var(--surface); border-radius: 16px; overflow: hidden;
+    display: grid; grid-template-columns: repeat(9, 1fr); box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.6); }
+  .board::after { content: ""; position: absolute; inset: 0; border: 3px solid var(--strong); border-radius: inherit; pointer-events: none; }
   .board svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .board .thin { stroke: var(--line); stroke-width: 0.025; }
-  .board .thick { stroke: #3A3A36; stroke-width: 0.045; }
+  .board .thick { stroke: var(--strong); stroke-width: 0.045; }
   .c { display: grid; place-items: center; font-size: 31px; font-weight: 500; }
   .c.peer { background: var(--peer); }
   .c.same { background: var(--same); }
   .c.sel { background: var(--sel); }
-  .c.u { color: var(--blue); font-weight: 600; }
+  .c.u { color: var(--accent); font-weight: 600; }
   .notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; padding: 4px; }
-  .notes i { font-style: normal; font-size: 13px; font-weight: 600; color: #77776F; display: grid; place-items: center; }
+  .notes i { font-style: normal; font-size: 13px; font-weight: 600; color: #8E897E; display: grid; place-items: center; }
 </style>
 </head>
 <body>

@@ -30,7 +30,7 @@ const Stars = ({ n }) => (
   <span className="stars-row" aria-label={`${n} of 3 stars`}>{[1, 2, 3].map((k) => <Icon.star key={k} width={13} height={13} className={k <= n ? "on" : ""} />)}</span>
 );
 
-export default function Home({ stats, saved, onResume, onStart, onDaily, onChallenge, onImport }) {
+export default function Home({ stats, saved, onResume, onStart, onDaily, onChallenge, onImport, onHelp }) {
   const today = todayKey();
   const daily = stats.daily[today];
   const dDiff = dailyDifficulty(today);
@@ -136,6 +136,7 @@ export default function Home({ stats, saved, onResume, onStart, onDaily, onChall
 
       <footer className="home-foot">
         <button className="link" onClick={onImport}><Icon.clipboard width={15} height={15} />Paste a puzzle</button>
+        <button className="link" onClick={onHelp}><Icon.help width={15} height={15} />How to play</button>
         <span className="hide-sm">Press <kbd>?</kbd> for keyboard shortcuts</span>
       </footer>
     </div>

@@ -13,7 +13,6 @@ export default defineConfig({
         "icons/icon-512.png",
         "icons/apple-touch-icon.png",
         "icons/maskable-512.png",
-        "og.png",
       ],
       manifest: {
         name: "Sudoku",
@@ -23,7 +22,7 @@ export default defineConfig({
         start_url: "/",
         categories: ["games", "puzzle"],
         display: "standalone",
-        background_color: "#2C5BD0",
+        background_color: "#141413",
         theme_color: "#F6F6F3",
         orientation: "any",
         shortcuts: [
@@ -51,17 +50,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        // Accented-Latin font files only load if such text ever appears; don't download them up front.
+        globIgnores: ["**/*latin-ext*", "og.png"],
       },
     }),
   ],

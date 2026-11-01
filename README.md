@@ -1,29 +1,24 @@
 # Sudoku
 
-A simple, ad-free Sudoku that works on laptops and phones. Installs as an app and plays offline. No accounts, no tracking.
+Nine boxes, nine digits, zero ads.
 
-**Play:** [sudoku.tgoyal.me](https://sudoku.tgoyal.me)
+**Play it:** [sudoku.tgoyal.me](https://sudoku.tgoyal.me)
 
-## Features
+![The home screen](docs/home.png)
 
-- **Four difficulties**, graded by the techniques a person needs to solve them. Every puzzle has exactly one solution.
-- **Daily puzzle**, the same for everyone, with a streak.
-- **Hints that teach**: point at the area, explain the technique, then place the digit.
-- **Challenges**: Blitz, Sudden Death, Pen Only, Fog and Purist, each with up to three stars.
-- **11 themes**, each with its own colors, board style, keys and digits.
-- **Keyboard shortcuts** for everything (press `?` in the app).
-- Notes, undo/redo, zen mode, synthesized sounds and auto-save.
+- A daily puzzle, same for everyone. Bragging rights included.
+- Hints that teach the trick instead of just doing your homework.
+- Blitz, Sudden Death, Pen Only, Fog and Purist, for when easy gets easy.
+- 11 themes, a zen mode, and it works offline.
+- Add it to your home screen and it's an app. No store, no account, no tracking.
 
-## Run locally
+## Run it
 
 ```bash
 npm install
 npm run dev
 ```
 
-```bash
-npm test
-npm run build
-```
+`npm test` runs the tests. `npm run build` makes the site, and Cloudflare Pages ships every push to `main`.
 
-Built with React 19 and Vite. Hosted on Cloudflare Pages, which deploys every push to `main`. Stats and saved games stay in your browser.
+React + Vite. Your stats live in your browser and nowhere else.

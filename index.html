@@ -31,10 +31,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&family=IBM+Plex+Mono:wght@500;600&display=swap" />
-
     <title>Sudoku</title>
 
     <style>
@@ -51,7 +47,8 @@
       // Paint the saved theme's background before React loads, so there's no flash.
       try {
         var boot = JSON.parse(localStorage.getItem("sudoku_boot") || "null");
-        document.documentElement.style.background = boot ? boot.bg : matchMedia("(prefers-color-scheme: dark)").matches ? "#151517" : "#F6F6F3";
+        var bg = boot && /^#[0-9a-f]{6}$/i.test(boot.bg) ? boot.bg : null;
+        document.documentElement.style.background = bg || (matchMedia("(prefers-color-scheme: dark)").matches ? "#151517" : "#F6F6F3");
       } catch (e) {}
     </script>
   </head>
