@@ -264,7 +264,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
 
   return (
     <div className="play" data-urgency={running ? urgency(left) || undefined : undefined}>
-      {game && !loading && (
+      {game && !loading && !settings.zen && (
         <GamePanel
           key={game.id} game={game} settings={settings} stats={stats} label={label} limit={limit} seen={seen}
           paused={paused} onPause={() => setPaused((p) => !p)} onJump={(i) => { setPaused(false); act({ type: "select", i }); }}
@@ -328,7 +328,7 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
             </div>
           ) : (
             <>
-              <Toolbar game={game} onUndo={undo} onErase={erase} onNotes={toggleNotes} onAutoNotes={autoNotes} onHint={hintAction} hintOpen={!!hint} haptics={settings.haptics} />
+              <Toolbar game={game} onUndo={undo} onErase={erase} onNotes={toggleNotes} onAutoNotes={autoNotes} onHint={hintAction} hintOpen={!!hint} haptics={settings.haptics} zen={settings.zen} />
               <NumberPad game={game} counts={counts} onDigit={onPadDigit} onLock={(d) => { act({ type: "lock-digit", d }); haptic(20); }} pressed={pressed} haptics={settings.haptics} />
               {game.lockedDigit > 0 && (
                 <p className="side-note">

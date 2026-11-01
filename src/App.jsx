@@ -183,7 +183,7 @@ export default function App() {
         <div className="topbar-left">
           {screen !== "home" && <button className="icon-btn" onClick={goHome} aria-label="Home"><Icon.back width={22} height={22} /></button>}
           <button className="brand" onClick={goHome} aria-label="Sudoku home">
-            <span className="brand-mark" aria-hidden>{Array.from({ length: 9 }, (_, i) => <i key={i} />)}</span>
+            <img className="brand-mark" src="/favicon.svg" alt="" width="26" height="26" />
             <span className="brand-name">Sudoku</span>
           </button>
         </div>

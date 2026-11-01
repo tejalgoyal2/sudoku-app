@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Sheet from "./Sheet.jsx";
 import { THEMES, THEME_KEYS, themeVars, themeAttrs } from "../theme/themes.js";
 import { sound, VOICES } from "../game/sound.js";
@@ -6,6 +6,7 @@ import { Icon } from "./Icons.jsx";
 import { TECHNIQUES } from "../engine/techniques.js";
 import { parsePuzzle, countSolutions, solve } from "../engine/core.js";
 import { grade } from "../engine/techniques.js";
+import { subscribeInstall, canPrompt, promptInstall, isInstalled, platform } from "../install.js";
 
 const Switch = ({ checked, onChange, label }) => (
   <button className="switch" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)} />
@@ -37,11 +38,56 @@ function Swatch({ k, on, onPick, label }) {
   );
 }
 
+// How to put the app on a home screen. Shown first until it's installed.
+const STEPS = {
+  ios: [
+    <>In Safari, tap <b>Share</b> <Icon.share width={15} height={15} className="inline-icon" /> (it may be hiding behind <b>•••</b>).</>,
+    <>Scroll down a bit and tap <b>Add to Home Screen</b>.</>,
+    <>Tap <b>Add</b>. Congrats, you're an app person now.</>,
+  ],
+  android: [
+    <>In Chrome, tap the <b>⋮</b> menu, top right.</>,
+    <>Tap <b>Add to Home screen</b> (or <b>Install app</b>).</>,
+    <>Tap <b>Install</b>. Your thumb says thanks.</>,
+  ],
+  desktop: [
+    <>In Chrome or Edge, click the install icon at the right end of the address bar.</>,
+    <>Click <b>Install</b>. It gets its own window and a spot in your dock.</>,
+    <>Safari on a Mac: <b>File → Add to Dock</b>. Same deal.</>,
+  ],
+};
+
+function InstallGuide() {
+  const [os, setOs] = useState(platform);
+  const promptable = useSyncExternalStore(subscribeInstall, canPrompt);
+  return (
+    <div className="install">
+      <p className="install-lede">Full screen, no browser bars, works offline. All the app, none of the app store drama.</p>
+      {promptable ? (
+        <button className="btn primary block" onClick={promptInstall}>Install Sudoku</button>
+      ) : (
+        <>
+          <div className="segmented" role="radiogroup" aria-label="Device">
+            {[["ios", "iPhone"], ["android", "Android"], ["desktop", "Laptop"]].map(([k, l]) => (
+              <button key={k} role="radio" aria-checked={os === k} className={os === k ? "on" : ""} onClick={() => setOs(k)}>{l}</button>
+            ))}
+          </div>
+          <ol className="install-steps">{STEPS[os].map((step, k) => <li key={k}><span>{step}</span></li>)}</ol>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function SettingsSheet({ open, onClose, settings, set, pickTheme, themeVoice }) {
   const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
-      <div className="section-title first">Theme <kbd>T</kbd></div>
+      {!isInstalled() && <>
+        <div className="section-title first">Put it on your home screen</div>
+        <InstallGuide />
+      </>}
+      <div className={`section-title ${isInstalled() ? "first" : ""}`}>Theme <kbd>T</kbd></div>
       <div className="swatches">
         <Swatch k={dark ? "graphite" : "paper"} label="Auto" on={settings.theme === "auto"} onPick={() => pickTheme("auto")} />
         {THEME_KEYS.map((k) => <Swatch key={k} k={k} label={THEMES[k].name} on={settings.theme === k} onPick={() => pickTheme(k)} />)}

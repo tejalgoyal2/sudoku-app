@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  The link-preview card (public/og.png, 1200×630). To regenerate after a change:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --hide-scrollbars \
+    --window-size=1200,630 --virtual-time-budget=4000 --screenshot=public/og.png scripts/og.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap" />
+<style>
+  :root { --bg: #F6F6F3; --ink: #1D1D1B; --dim: #6F6F69; --blue: #2C5BD0; --sel: #D6E1FA; --peer: #EEF1F6; --same: #C6D5F7; --line: #E2E2DC; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--bg); font-family: Figtree, system-ui, sans-serif; color: var(--ink); }
+  .card { display: flex; align-items: center; gap: 64px; height: 100%; padding: 0 64px 0 76px; }
+  .copy { flex: 1; display: flex; flex-direction: column; }
+  .title { display: flex; align-items: center; gap: 22px; }
+  .title img { width: 92px; height: 92px; }
+  h1 { font-size: 88px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .tag { margin-top: 26px; font-size: 32px; font-weight: 600; letter-spacing: -0.01em; color: var(--dim); }
+  ul { list-style: none; padding: 0; margin-top: 34px; display: flex; flex-direction: column; gap: 15px; }
+  li { display: flex; align-items: center; gap: 16px; font-size: 26px; font-weight: 600; letter-spacing: -0.005em; }
+  li::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--blue); flex: none; }
+  .url { margin-top: 38px; font-size: 24px; font-weight: 700; color: var(--blue); }
+
+  .board { position: relative; width: 470px; height: 470px; flex: none; background: #fff; border-radius: 16px; overflow: hidden;
+    display: grid; grid-template-columns: repeat(9, 1fr); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 18px 48px -18px rgb(0 0 0 / 0.22); }
+  .board::after { content: ""; position: absolute; inset: 0; border: 3px solid #3A3A36; border-radius: inherit; pointer-events: none; }
+  .board svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .board .thin { stroke: var(--line); stroke-width: 0.025; }
+  .board .thick { stroke: #3A3A36; stroke-width: 0.045; }
+  .c { display: grid; place-items: center; font-size: 31px; font-weight: 500; }
+  .c.peer { background: var(--peer); }
+  .c.same { background: var(--same); }
+  .c.sel { background: var(--sel); }
+  .c.u { color: var(--blue); font-weight: 600; }
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; padding: 4px; }
+  .notes i { font-style: normal; font-size: 13px; font-weight: 600; color: #77776F; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="copy">
+      <div class="title"><img src="../public/favicon.svg" alt="" /><h1>Sudoku</h1></div>
+      <p class="tag">Simple and calm. No ads, ever.</p>
+      <ul>
+        <li>A daily puzzle for everyone</li>
+        <li>Hints that teach, not just tell</li>
+        <li>Blitz, Fog and more challenges</li>
+        <li>11 themes, works offline</li>
+      </ul>
+      <p class="url">sudoku.tgoyal.me</p>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+<script>
+  // A real easy puzzle from the app's generator, part-way through a solve.
+  const P = "710096205030012000502070900000600384000187000865009000008050601000730090409260053";
+  const S = "714896235936512748582473916197625384243187569865349127328954671651738492479261853";
+  const USER = [1, 3, 10, 12, 18, 20, 24, 27, 28, 31, 37, 46, 47, 50, 52];
+  const SEL = 37;
+  const NOTES = [15, 16, 17, 25];
+  const R = (i) => Math.floor(i / 9), C = (i) => i % 9, B = (i) => Math.floor(R(i) / 3) * 3 + Math.floor(C(i) / 3);
+  const vals = [...P].map((ch, i) => (+ch || (USER.includes(i) ? +S[i] : 0)));
+  const peers = (i) => [...Array(81).keys()].filter((j) => j !== i && (R(j) === R(i) || C(j) === C(i) || B(j) === B(i)));
+  const cand = (i) => [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => !peers(i).some((j) => vals[j] === d));
+  const board = document.getElementById("board");
+  vals.forEach((v, i) => {
+    const el = document.createElement("div");
+    el.className = "c";
+    if (i === SEL) el.classList.add("sel");
+    else if (v && v === vals[SEL]) el.classList.add("same");
+    else if (R(i) === R(SEL) || C(i) === C(SEL) || B(i) === B(SEL)) el.classList.add("peer");
+    if (v) { el.textContent = v; if (!+P[i]) el.classList.add("u"); }
+    else if (NOTES.includes(i)) el.innerHTML = `<span class="notes">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => `<i>${cand(i).includes(d) ? d : ""}</i>`).join("")}</span>`;
+    board.append(el);
+  });
+  board.insertAdjacentHTML("beforeend", `<svg viewBox="0 0 9 9" preserveAspectRatio="none">${[1, 2, 4, 5, 7, 8].map((k) => `<g class="thin"><line x1="${k}" y1="0" x2="${k}" y2="9"/><line x1="0" y1="${k}" x2="9" y2="${k}"/></g>`).join("")}${[3, 6].map((k) => `<g class="thick"><line x1="${k}" y1="0" x2="${k}" y2="9"/><line x1="0" y1="${k}" x2="9" y2="${k}"/></g>`).join("")}</svg>`);
+</script>
+</body>
+</html>

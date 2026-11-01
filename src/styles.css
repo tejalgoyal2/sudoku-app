@@ -58,9 +58,7 @@ kbd {
 .topbar-left, .top-actions { display: flex; align-items: center; gap: 2px; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; }
 .brand-name { font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
-.brand-mark { width: 22px; height: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-.brand-mark i { border-radius: 2px; background: var(--text); opacity: 0.18; }
-.brand-mark i:nth-child(5) { background: var(--accent); opacity: 1; }
+.brand-mark { width: 26px; height: 26px; display: block; }
 .icon-btn {
   width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px;
   color: var(--text-dim); transition: background-color 0.15s, color 0.15s, transform 0.12s;
@@ -185,6 +183,10 @@ button.list-row:active { background: color-mix(in srgb, var(--text) 6%, transpar
   .play .side { width: 300px; }
   .play-col .status-bar { display: none; }
   .countdown-bar { margin-top: 0; }
+  /* Zen: no side panel, just the board and the keys. */
+  .app.zen .play { --board-size: min(calc(100dvh - 120px), 620px, calc(100vw - 460px)); gap: 40px; }
+  .app.zen .play-col .status-bar { display: flex; }
+  .app.zen .countdown-bar { margin-top: -6px; }
 }
 .panel-block { display: flex; flex-direction: column; gap: 10px; padding: 16px 0; }
 .panel-block + .panel-block { border-top: 1px solid var(--line); }
@@ -271,6 +273,13 @@ button.list-row:active { background: color-mix(in srgb, var(--text) 6%, transpar
 
 /* ─── BOARD ─── */
 .board-wrap { position: relative; width: var(--board-size); height: var(--board-size); flex: none; }
+/* Row and column numbers, only while a hint is open. */
+.coords { position: absolute; display: flex; pointer-events: none; font-size: 10px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-dim); font-variant-numeric: tabular-nums; animation: fadeIn 0.2s ease; }
+.coords span { flex: 1; display: grid; place-items: center; opacity: 0.6; transition: color 0.2s, opacity 0.2s; }
+.coords span.on { color: var(--accent); opacity: 1; }
+.coords-r { top: 0; bottom: 0; right: 100%; flex-direction: column; padding-right: 3px; }
+.coords-c { left: 0; right: 0; bottom: 100%; padding-bottom: 3px; }
+@media (max-width: 600px) { .coords { font-size: 8.5px; } .coords-r { padding-right: 1px; } }
 .board {
   position: absolute; inset: 0; border-radius: var(--board-radius); overflow: hidden;
   background: var(--surface); box-shadow: var(--shadow); outline: none; touch-action: manipulation;
@@ -361,7 +370,7 @@ html[data-ink="glow"] .board .digit.user { text-shadow: 0 0 0.45em color-mix(in 
 @keyframes shimmer { 50% { opacity: 0.4; } }
 
 /* ─── TOOLS & NUMBER PAD ─── */
-.toolbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.toolbar { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
 /* iPhone haptics: see components/Tap.jsx. */
 .tap { position: absolute; inset: 0; border-radius: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
 .tap input { position: absolute; width: 1px; height: 1px; margin: 0; visibility: hidden; pointer-events: none; }
@@ -467,6 +476,16 @@ html[data-ink="glow"] .board .digit.user { text-shadow: 0 0 0.45em color-mix(in 
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.22s var(--ease); }
 .switch[aria-checked="true"] { background: var(--accent); }
 .switch[aria-checked="true"]::after { transform: translateX(18px); }
+.install { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 4px 0 8px; }
+.install-lede { font-size: 14px; color: var(--text-dim); line-height: 1.45; }
+.install-steps { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: step; }
+.install-steps li { counter-increment: step; display: flex; gap: 12px; font-size: 14.5px; line-height: 1.45; }
+.install-steps li::before {
+  content: counter(step); flex: none; width: 22px; height: 22px; margin-top: -1px; border-radius: 50%; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font-size: 12.5px; font-weight: 700;
+}
+.install-steps b { font-weight: 650; }
+.inline-icon { display: inline-block; vertical-align: -2px; color: var(--accent); }
 .segmented { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--surface2); flex: none; }
 .segmented button { padding: 6px 13px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-dim); transition: background-color 0.15s, color 0.15s; }
 .segmented button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }

@@ -83,6 +83,15 @@ export default function Board({ game, displayValues, settings, highlight, waves,
     };
   };
 
+  // While a hint is open, number the rows and columns so "R3C8" can be found at a glance,
+  // and light up the ones the hint is about.
+  let coords = null;
+  if (highlight) {
+    coords = { r: new Set(), c: new Set() };
+    for (const i of [highlight.target, ...(highlight.focus || [])]) if (i !== undefined) { coords.r.add(R(i)); coords.c.add(C(i)); }
+    for (const u of highlight.units || []) if (u < 9) coords.r.add(u); else if (u < 18) coords.c.add(u - 9);
+  }
+
   const pos = live ? { "--r": R(selected), "--c": C(selected), "--br": Math.floor(R(selected) / 3), "--bc": Math.floor(C(selected) / 3) } : {};
 
   return (
@@ -107,6 +116,12 @@ export default function Board({ game, displayValues, settings, highlight, waves,
         <GridLines />
         <i className="cursor" aria-hidden />
       </div>
+      {coords && !paused && (
+        <>
+          <div className="coords coords-r" aria-hidden>{ROWS9.map((k) => <span key={k} className={coords.r.has(k) ? "on" : ""}>R{k + 1}</span>)}</div>
+          <div className="coords coords-c" aria-hidden>{ROWS9.map((k) => <span key={k} className={coords.c.has(k) ? "on" : ""}>C{k + 1}</span>)}</div>
+        </>
+      )}
       {paused && (
         <div className="board-overlay" onClick={onResume}>
           <div className="inner">

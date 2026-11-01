@@ -28,16 +28,16 @@ export function Countdown({ game, className = "" }) {
   );
 }
 
-export function Toolbar({ game, onUndo, onErase, onNotes, onAutoNotes, onHint, hintOpen, haptics }) {
+export function Toolbar({ game, onUndo, onErase, onNotes, onAutoNotes, onHint, hintOpen, haptics, zen }) {
   const off = game.status !== "playing";
   const rules = game.rules || {};
   const tools = [
     { key: "undo", label: "Undo", icon: <Icon.undo />, action: onUndo, disabled: off || !game.past.length, kbd: "Z" },
     { key: "erase", label: "Erase", icon: <Icon.erase />, action: onErase, disabled: off, kbd: "⌫" },
     { key: "notes", label: "Notes", icon: <Icon.pencil />, action: onNotes, on: game.notesMode, toggle: true, disabled: off || rules.noNotes, kbd: "N" },
-    { key: "auto", label: "Fill notes", icon: <Icon.wand />, action: onAutoNotes, disabled: off || rules.noNotes || rules.noAutoNotes, kbd: "A" },
+    !zen && { key: "auto", label: "Fill notes", icon: <Icon.wand />, action: onAutoNotes, disabled: off || rules.noNotes || rules.noAutoNotes, kbd: "A" },
     { key: "hint", label: "Hint", icon: <Icon.bulb />, action: onHint, on: hintOpen, disabled: off || rules.noHints, kbd: "H" },
-  ];
+  ].filter(Boolean);
   return (
     <div className="toolbar" role="toolbar" aria-label="Game tools">
       {tools.map((t) => (
