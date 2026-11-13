@@ -104,17 +104,23 @@ const Level = ({ n }) => (
   <span className="lvl" aria-label={`Level ${n}`}>{[1, 2, 3, 4, 5, 6].map((k) => <i key={k} className={k <= n ? "on" : ""} />)}</span>
 );
 
+// Cell names in a hint ("R3C5") stand out, so they're easy to find on the board's R/C labels.
+const withCells = (text) => text.split(/(R\dC\d)/).map((t, k) => (k % 2 ? <b key={k} className="cellref">{t}</b> : t));
+
 export function HintCard({ hint, stage, step, onReveal, onNext, onApply, onClose }) {
   const s = hint.kind === "mistake" ? hint : hint.chain[step];
   const total = hint.kind === "mistake" ? 1 : hint.chain.length;
   const last = step === total - 1;
   const blurb = TECHNIQUES[s.id]?.blurb;
+  const thinking = stage === 2 && !s.place && hint.kind !== "mistake";
+  const placeLabel = hint.kind === "mistake" ? "Clear it" : s.place ? `Place ${s.place.d}` : "Apply";
   return (
     <div className="card hint-card" role="status" aria-live="polite" key={`${stage}-${step}`}>
       <div className="hint-head">
         <span className="hint-bulb"><Icon.bulb width={16} height={16} /></span>
         <span className="tech">{stage === 1 ? "A nudge" : s.name}</span>
         {stage === 2 && s.level > 0 && s.level < 7 && <Level n={s.level} />}
+        {stage === 2 && total > 1 && <span className="hint-count">{step + 1}/{total}</span>}
         <button className="icon-btn close" onClick={onClose} aria-label="Close hint"><Icon.close width={16} height={16} /></button>
       </div>
       <ol className="hint-ladder" aria-label="Hint depth">
@@ -123,13 +129,22 @@ export function HintCard({ hint, stage, step, onReveal, onNext, onApply, onClose
         <li className={stage === 2 && last ? "now" : ""}>Place</li>
       </ol>
       {total > 1 && stage === 2 && <div className="hint-steps">{hint.chain.map((_, k) => <i key={k} className={k <= step ? "on" : ""} />)}</div>}
-      <p>{stage === 1 ? s.nudge : s.text}</p>
+      {stage === 2 && s.headline && <p className="hint-headline">{withCells(s.headline)}</p>}
+      <p>{withCells(stage === 1 ? s.nudge : s.text)}</p>
+      {thinking && <p className="hint-aside">Nothing to type for this step. It only crosses out digits, so the next step can place one.</p>}
+      {stage === 2 && (
+        <ul className="hint-legend" aria-label="What the marks on the board mean">
+          {s.proof?.length > 0 && <li><i className="lg proof" />ringed: what rules it out</li>}
+          {s.focus?.length > 0 && <li><i className="lg focus" />dashed: the cells to look at</li>}
+          {(s.elims?.length > 0 || s.crossed) && <li><i className="lg elim">7</i>crossed out</li>}
+        </ul>
+      )}
       {stage === 2 && blurb && <p className="blurb">{blurb}</p>}
       <div className="hint-actions">
         {stage === 1 && <button className="btn primary" onClick={onReveal}>Show me <kbd>H</kbd></button>}
         {stage === 2 && !last && <button className="btn primary" onClick={onNext}>Next step <kbd>H</kbd></button>}
         {stage === 2 && !last && total > 2 && <button className="btn ghost" onClick={onApply}>Skip to the answer</button>}
-        {stage === 2 && last && <button className="btn primary" onClick={onApply}>{hint.kind === "mistake" ? "Clear it" : s.place ? "Place it" : "Apply"} <kbd>H</kbd></button>}
+        {stage === 2 && last && <button className="btn primary" onClick={onApply}>{placeLabel} <kbd>H</kbd></button>}
       </div>
     </div>
   );

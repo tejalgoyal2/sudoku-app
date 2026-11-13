@@ -5,7 +5,7 @@ import { Icon } from "./Icons.jsx";
 const NOTE_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const ROWS9 = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-const Cell = memo(function Cell({ i, value, given, notes, cls, digitCls, hlDigit, elims, wave, fresh, onPointerDown }) {
+const Cell = memo(function Cell({ i, value, given, notes, cls, digitCls, hlDigit, elims, marks, wave, fresh, onPointerDown }) {
   const lift = wave && !fresh;
   return (
     <div
@@ -28,8 +28,8 @@ const Cell = memo(function Cell({ i, value, given, notes, cls, digitCls, hlDigit
       ) : (
         <div className="pencil" aria-hidden>
           {NOTE_DIGITS.map((d) => {
-            const has = notes & (1 << d), el = elims & (1 << d);
-            return <span key={d} className={`${has || el ? "on" : ""} ${el ? "elim" : has && d === hlDigit ? "hl" : ""}`}>{d}</span>;
+            const has = notes & (1 << d), el = elims & (1 << d), mk = marks & (1 << d);
+            return <span key={d} className={`${has || el || mk ? "on" : ""} ${el ? "elim" : mk ? "mk" : has && d === hlDigit ? "hl" : ""}`}>{d}</span>;
           })}
         </div>
       )}
@@ -58,6 +58,7 @@ export default function Board({ game, displayValues, settings, highlight, waves,
   const focusDigit = lockedDigit || selValue;
   const hintUnits = highlight?.units ? new Set(highlight.units.flatMap((u) => (u < 9 ? ROWS9.map((k) => u * 9 + k) : u < 18 ? ROWS9.map((k) => k * 9 + (u - 9)) : BOXES[u - 18]))) : null;
   const hintFocus = new Set(highlight?.focus || []);
+  const hintProof = new Set(highlight?.proof || []);
   const elimMap = highlight?.elims || {};
   const sees = (i) => live && (R(i) === R(selected) || C(i) === C(selected) || B(i) === B(selected));
 
@@ -68,6 +69,7 @@ export default function Board({ game, displayValues, settings, highlight, waves,
     else if (settings.highlightSame && focusDigit && v === focusDigit && i !== selected) cls.push("same");
     else if (hintUnits?.has(i)) cls.push("hint-unit");
     if (hintFocus.has(i)) cls.push("hint-focus");
+    if (hintProof.has(i)) cls.push("hint-proof");
     if (highlight?.target === i) cls.push("hint-target");
     if (waves?.shake === i) cls.push("shake");
     if (fog && !sees(i) && !displayValues) cls.push("fogged");
@@ -78,6 +80,7 @@ export default function Board({ game, displayValues, settings, highlight, waves,
       digitCls: conflicts.has(i) && !puzzle[i] ? "conflict" : "",
       hlDigit: settings.highlightSame ? focusDigit : 0,
       elims: elimMap[i] || 0,
+      marks: highlight?.marks?.[i] || 0,
       wave: waves?.cells[i],
       fresh: freshMap?.[i] || 0,
     };

@@ -120,7 +120,7 @@ test("challenge rules: sudden death, pen only, countdown with bonus, stars", asy
   assert.equal(s.bonusTime, 4, "re-entering the same cell doesn't farm time");
   s = reducer(s, { type: "input", d: solution[j], i: j, opts: OPTS });
   assert.equal(s.bonusTime, 8);
-  for (let t = 0; t < 68; t++) s = reducer(s, { type: "tick" });
+  for (let t = 0; t < 58; t++) s = reducer(s, { type: "tick" });
   assert.equal(s.status, "lost");
   assert.equal(s.fx.reason, "time");
 
@@ -129,7 +129,7 @@ test("challenge rules: sudden death, pen only, countdown with bonus, stars", asy
   s = reducer(s, { type: "input", d: wrong, i, opts: OPTS });
   assert.equal(s.bonusTime, -5);
   assert.equal(s.status, "playing");
-  for (let t = 0; t < 52; t++) s = reducer(s, { type: "tick" });
+  for (let t = 0; t < 40; t++) s = reducer(s, { type: "tick" });
   const wrong2 = [1, 2, 3, 4, 5, 6, 7, 8, 9].find((x) => x !== solution[i] && x !== wrong);
   s = reducer(s, { type: "input", d: wrong2, i, opts: OPTS });
   assert.equal(s.status, "lost");
@@ -153,4 +153,26 @@ test("stats record challenge stars", async () => {
   const slower = recordResult(r.stats, { ...game, elapsed: 900 });
   assert.equal(slower.stats.challenges.fog.stars, 3, "best stars are kept");
   assert.equal(slower.stats.challenges.fog.best, 200);
+});
+
+test("hint steps explain themselves: headline, readable text, evidence cells", () => {
+  const { puzzle } = generate("expert");
+  const values = puzzle.slice();
+  const cand = candidatesFor(values);
+  let steps = 0;
+  for (let guard = 0; guard < 400 && values.includes(0); guard++) {
+    const st = findStep(values, cand);
+    if (!st) break;
+    steps++;
+    assert.ok(st.headline && st.nudge && st.text, `${st.id} has headline, nudge and text`);
+    for (const f of [st.headline, st.nudge, st.text]) assert.ok(!/undefined|NaN|\[object/.test(f), `${st.id}: "${f}"`);
+    if (st.id === "naked-single") {
+      // Every other digit is ruled out by a ringed cell, or by an earlier step (and the text says so).
+      const rings = new Set(st.proof.map((p) => values[p]));
+      assert.ok(rings.size >= 1 && !rings.has(st.place.d), "ringed digits never include the answer");
+    }
+    if (st.id === "hidden-single") assert.ok(Object.keys(st.crossed).length >= 1);
+    applyStep(values, cand, st);
+  }
+  assert.ok(steps > 20, "a full expert solve exercised many steps");
 });

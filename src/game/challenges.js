@@ -5,9 +5,9 @@
 
 export const CHALLENGES = {
   blitz: {
-    name: "Blitz", short: "1-minute clock, +4s right, −5s wrong", difficulty: "easy", icon: "bolt",
-    blurb: "One minute on the clock. Every correct digit adds 4 seconds, every wrong one takes 5.",
-    rules: { countdown: 60, bonus: 4, penalty: 5 }, par: [180, 140],
+    name: "Blitz", short: "50-second clock, +4s right, −5s wrong", difficulty: "easy", icon: "bolt",
+    blurb: "Fifty seconds on the clock. Every correct digit adds 4 seconds, every wrong one takes 5.",
+    rules: { countdown: 50, bonus: 4, penalty: 5 }, par: [180, 140],
   },
   sudden: {
     name: "Sudden Death", short: "One mistake ends it", difficulty: "medium", icon: "skull",

@@ -163,9 +163,10 @@ export default function Play({ game, act, settings, loading, dialogOpen, result,
     const h = hint.hint;
     const s = h.kind === "mistake" ? h : h.chain[hint.step];
     if (hint.stage === 1) return { units: s.units.length ? s.units : [R(s.focus[0])] };
-    const elims = {};
+    // `elims` and `crossed` both draw as red struck-through digits; only `elims` change the puzzle.
+    const elims = { ...(s.crossed || {}) };
     for (const { i, d } of s.elims || []) elims[i] = (elims[i] || 0) | (1 << d);
-    return { units: s.units, focus: s.focus, elims, target: s.place?.i ?? (h.kind === "mistake" ? h.i : undefined) };
+    return { units: s.units, focus: s.focus, elims, marks: s.marks || {}, proof: s.proof || [], target: s.place?.i ?? (h.kind === "mistake" ? h.i : undefined) };
   }, [hint]);
 
   // ─── REPLAY: re-live the solve from the undo history ───

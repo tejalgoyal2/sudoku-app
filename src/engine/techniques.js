@@ -7,22 +7,30 @@ import {
 } from "./core.js";
 
 export const TECHNIQUES = {
-  "naked-single":  { name: "Naked Single",     level: 1, blurb: "A cell where every digit but one is already used by its row, column or box." },
-  "hidden-single": { name: "Hidden Single",    level: 1, blurb: "A digit that has only one possible home inside a row, column or box." },
-  "pointing":      { name: "Pointing Pair",    level: 2, blurb: "When a digit's spots inside a box all line up, it can't appear elsewhere on that line." },
-  "claiming":      { name: "Box/Line Claim",   level: 2, blurb: "When a digit's spots on a line all sit in one box, it can't appear elsewhere in that box." },
-  "naked-pair":    { name: "Naked Pair",       level: 3, blurb: "Two cells in a unit that share the same two candidates lock those digits to themselves." },
-  "hidden-pair":   { name: "Hidden Pair",      level: 3, blurb: "Two digits that only fit in the same two cells of a unit claim those cells." },
-  "naked-triple":  { name: "Naked Triple",     level: 4, blurb: "Three cells whose candidates together use only three digits lock those digits in." },
-  "hidden-triple": { name: "Hidden Triple",    level: 4, blurb: "Three digits confined to the same three cells of a unit claim those cells." },
-  "x-wing":        { name: "X-Wing",           level: 5, blurb: "A digit confined to the same two columns across two rows (or vice versa) forms a rectangle that clears those lines." },
-  "xy-wing":       { name: "XY-Wing",          level: 5, blurb: "A pivot with two candidates and two pincers force a shared digit out of any cell that sees both pincers." },
-  "swordfish":     { name: "Swordfish",        level: 6, blurb: "An X-Wing stretched across three rows and three columns." },
-  "naked-quad":    { name: "Naked Quad",       level: 6, blurb: "Four cells whose candidates use only four digits." },
+  "naked-single":  { name: "Naked Single",     level: 1, blurb: "An empty cell where every digit but one is ruled out by its row, column and box." },
+  "hidden-single": { name: "Hidden Single",    level: 1, blurb: "A digit that has only one cell left in a row, column or box, even if that cell could be other digits too." },
+  "pointing":      { name: "Pointing Pair",    level: 2, blurb: "If a digit's only spots in a box all sit on one line, the rest of that line can't have that digit." },
+  "claiming":      { name: "Box/Line Claim",   level: 2, blurb: "If a digit's only spots on a line all sit in one box, the rest of that box can't have that digit." },
+  "naked-pair":    { name: "Naked Pair",       level: 3, blurb: "Two cells that can only be the same two digits use them up, so no one else in that row, column or box can be those digits." },
+  "hidden-pair":   { name: "Hidden Pair",      level: 3, blurb: "Two digits that only fit in the same two cells claim those cells, so those cells can't be anything else." },
+  "naked-triple":  { name: "Naked Triple",     level: 4, blurb: "Three cells that between them only have the same three digits use them up." },
+  "hidden-triple": { name: "Hidden Triple",    level: 4, blurb: "Three digits that only fit in the same three cells claim those cells." },
+  "x-wing":        { name: "X-Wing",           level: 5, blurb: "A digit that has just two spots in each of two rows, in the same two columns. Those columns can't have it anywhere else (and the same with rows and columns swapped)." },
+  "xy-wing":       { name: "XY-Wing",          level: 5, blurb: "Three two-option cells in a chain. One of the two outer ones must be the shared digit, so any cell that sees both can't be it." },
+  "swordfish":     { name: "Swordfish",        level: 6, blurb: "Like an X-Wing, but spread over three rows and three columns." },
+  "naked-quad":    { name: "Naked Quad",       level: 6, blurb: "Four cells that between them only have the same four digits use them up." },
 };
 
 const step = (id, fields) => ({ id, ...TECHNIQUES[id], ...fields });
-const list = (xs) => (xs.length <= 1 ? `${xs[0] ?? ""}` : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+const list = (xs, and = "and") => (xs.length <= 1 ? `${xs[0] ?? ""}` : `${xs.slice(0, -1).join(", ")} ${and} ${xs[xs.length - 1]}`);
+
+const WORD = { 2: "two", 3: "three", 4: "four" };
+const sorted = (xs) => [...xs].sort((a, b) => a - b);
+const cellList = (cells) => list(cells.map(cellName));
+const cap = (t) => t[0].toUpperCase() + t.slice(1);
+
+// Why can't `d` go in cell `i`? A filled peer holding d is the reason (and the cell to point at).
+const blockerOf = (values, i, d) => PEERS[i].find((p) => values[p] === d) ?? -1;
 
 function* combos(arr, k, start = 0, acc = []) {
   if (acc.length === k) { yield acc; return; }
@@ -34,10 +42,23 @@ function nakedSingle(values, cand) {
   for (let i = 0; i < 81; i++) {
     if (values[i] || popcount(cand[i]) !== 1) continue;
     const d = firstDigit(cand[i]);
+    // For every other digit, find the filled cell that rules it out, and file it under row / column / box.
+    const byUnit = { row: [], column: [], box: [] }, proof = [], unexplained = [];
+    for (let e = 1; e <= 9; e++) {
+      if (e === d) continue;
+      const h = blockerOf(values, i, e);
+      if (h < 0) { unexplained.push(e); continue; }
+      proof.push(h);
+      byUnit[R(h) === R(i) ? "row" : C(h) === C(i) ? "column" : "box"].push(e);
+    }
+    const where = { row: R(i) + 1, column: C(i) + 1, box: B(i) + 1 };
+    const parts = Object.entries(byUnit).filter(([, ds]) => ds.length).map(([u, ds]) => `${u} ${where[u]} has ${list(ds)}`);
+    const ruled = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((e) => e !== d && !unexplained.includes(e));
     return step("naked-single", {
-      place: { i, d }, focus: [i], units: [], digits: [d],
-      nudge: `One cell in ${unitName(R(i))} has only a single option left.`,
-      text: `${cellName(i)} can only be ${d} — every other digit already appears in its row, column or box.`,
+      place: { i, d }, focus: [i], units: [], digits: [d], proof,
+      headline: `${cellName(i)} has to be ${d}`,
+      nudge: `Look at ${unitName(R(i))}. One empty cell there has only a single digit that can still go in it. Can you spot it?`,
+      text: `${cap(parts.join("; "))}. So ${cellName(i)} can't be ${list(ruled, "or")}.${unexplained.length ? ` Earlier steps also ruled out ${list(unexplained)}.` : ""} The only digit left is ${d}.`,
     });
   }
   return null;
@@ -55,10 +76,20 @@ function hiddenSingle(values, cand) {
         if (!values[i] && cand[i] & bit) { spot = i; n++; }
       }
       if (n !== 1) continue;
+      // Every other empty cell in the unit is blocked for d. Ring the d that blocks it, cross d out in it.
+      const proof = new Set(), crossed = {};
+      let early = false;
+      for (const i of UNITS[u]) {
+        if (values[i] || i === spot) continue;
+        crossed[i] = bit;
+        const h = blockerOf(values, i, d);
+        if (h >= 0) proof.add(h); else early = true;
+      }
       return step("hidden-single", {
-        place: { i: spot, d }, focus: [spot], units: [u], digits: [d],
-        nudge: `Look at ${unitName(u)} — one digit has only one place to go.`,
-        text: `In ${unitName(u)}, ${d} fits only in ${cellName(spot)}. Every other cell there is blocked for ${d}.`,
+        place: { i: spot, d }, focus: [spot], units: [u], digits: [d], proof: [...proof], crossed,
+        headline: `In ${unitName(u)}, the ${d} can only go in ${cellName(spot)}`,
+        nudge: `Look at ${unitName(u)}. One digit has just one cell left where it can go. Can you find which?`,
+        text: `${cap(unitName(u))} needs a ${d}. Every other empty cell in it can't be ${d}: each one already sees a ${d} in its row, column or box (ringed on the board, and crossed out in those cells).${early ? " A few were ruled out by the earlier steps." : ""} That leaves ${cellName(spot)} for the ${d}.`,
       });
     }
   }
@@ -79,9 +110,10 @@ function lockedCandidates(values, cand) {
         if (!elims.length) continue;
         const u = label === "row" ? k : 9 + k;
         return step("pointing", {
-          elims, focus: spots, units: [18 + b, u], digits: [d],
-          nudge: `In box ${b + 1}, where can ${d} go?`,
-          text: `In box ${b + 1}, every spot for ${d} lies in ${unitName(u)}. So ${d} must land in that stretch, and can be removed from the rest of ${unitName(u)}.`,
+          elims, focus: spots, units: [18 + b, u], digits: [d], marks: Object.fromEntries(spots.map((i) => [i, bit])),
+          headline: `In box ${b + 1}, the ${d} must be in ${unitName(u)}`,
+          nudge: `Look at box ${b + 1}. Where can the ${d} still go? Notice anything about those cells?`,
+          text: `In box ${b + 1}, the ${d} can only go in ${cellList(spots)}, and they're all in ${unitName(u)}. So box ${b + 1}'s ${d} will land in ${unitName(u)}, and no other cell in ${unitName(u)} can be ${d}. Cross out the ${d} in ${cellList(elims.map((e) => e.i))}.`,
         });
       }
     }
@@ -96,9 +128,10 @@ function lockedCandidates(values, cand) {
       const elims = BOXES[b].filter((i) => !UNITS[u].includes(i) && !values[i] && cand[i] & bit).map((i) => ({ i, d }));
       if (!elims.length) continue;
       return step("claiming", {
-        elims, focus: spots, units: [u, 18 + b], digits: [d],
-        nudge: `In ${unitName(u)}, where can ${d} go?`,
-        text: `In ${unitName(u)}, every spot for ${d} sits inside box ${b + 1}. So box ${b + 1}'s ${d} must be on that line — remove ${d} from the box's other cells.`,
+        elims, focus: spots, units: [u, 18 + b], digits: [d], marks: Object.fromEntries(spots.map((i) => [i, bit])),
+        headline: `In ${unitName(u)}, the ${d} must be in box ${b + 1}`,
+        nudge: `Look at ${unitName(u)}. Where can the ${d} still go? Notice anything about those cells?`,
+        text: `In ${unitName(u)}, the ${d} can only go in ${cellList(spots)}, and they're all in box ${b + 1}. So box ${b + 1}'s ${d} has to be on that line, and no other cell in the box can be ${d}. Cross out the ${d} in ${cellList(elims.map((e) => e.i))}.`,
       });
     }
   }
@@ -107,7 +140,6 @@ function lockedCandidates(values, cand) {
 
 // ─── NAKED / HIDDEN SUBSETS ───
 const SUBSET_IDS = { naked: { 2: "naked-pair", 3: "naked-triple", 4: "naked-quad" }, hidden: { 2: "hidden-pair", 3: "hidden-triple" } };
-const SUBSET_WORD = { 2: "two", 3: "three", 4: "four" };
 
 function nakedSubset(n) {
   return (values, cand) => {
@@ -124,9 +156,10 @@ function nakedSubset(n) {
         if (!elims.length) continue;
         const ds = digitsOf(mask);
         return step(SUBSET_IDS.naked[n], {
-          elims, focus: cells, units: [u], digits: ds,
-          nudge: `Look for ${SUBSET_WORD[n]} cells in ${unitName(u)} that share the same few candidates.`,
-          text: `${list(cells.map(cellName))} can only hold ${list(ds)}. Those ${SUBSET_WORD[n]} digits must fill those ${SUBSET_WORD[n]} cells, so remove them from the rest of ${unitName(u)}.`,
+          elims, focus: cells, units: [u], digits: ds, marks: Object.fromEntries(cells.map((i) => [i, cand[i]])),
+          headline: `${cellList(cells)} hold ${list(ds)} between them`,
+          nudge: `Look at ${unitName(u)}. Can you find ${WORD[n]} cells that only have the same ${WORD[n]} digits left?`,
+          text: `${cellList(cells)} can only be ${list(ds, "or")}. Together they take ${n === 2 ? "both" : `all ${WORD[n]}`} of those digits, so nobody else in ${unitName(u)} can be ${list(ds, "or")}. Cross them out of the other cells.`,
         });
       }
     }
@@ -153,9 +186,10 @@ function hiddenSubset(n) {
         for (const i of cells) for (const d of digitsOf(cand[i] & ~keep)) elims.push({ i, d });
         if (!elims.length) continue;
         return step(SUBSET_IDS.hidden[n], {
-          elims, focus: cells, units: [u], digits: ds,
-          nudge: `In ${unitName(u)}, ${SUBSET_WORD[n]} digits are squeezed into the same ${SUBSET_WORD[n]} cells.`,
-          text: `In ${unitName(u)}, ${list(ds)} only fit in ${list(cells.map(cellName))}. Those cells must hold exactly those digits, so their other candidates can go.`,
+          elims, focus: cells, units: [u], digits: ds, marks: Object.fromEntries(cells.map((i) => [i, cand[i] & keep])),
+          headline: `${list(ds)} can only go in ${cellList(cells)}`,
+          nudge: `Look at ${unitName(u)}. ${n === 2 ? "Two digits only fit" : "Three digits only fit"} in the same ${WORD[n]} cells. Which?`,
+          text: `In ${unitName(u)}, the ${list(ds)} have no other place to go than ${cellList(cells)}. So those ${WORD[n]} cells will hold exactly those digits, and any other digit in them can be crossed out.`,
         });
       }
     }
@@ -192,10 +226,12 @@ function fish(n) {
           if (!elims.length) continue;
           const bw = rowBase ? "rows" : "columns", cw = rowBase ? "columns" : "rows";
           const units = [...baseKs.map((k) => (rowBase ? k : 9 + k)), ...crossSet.map((x) => (rowBase ? 9 + x : x))];
+          const spots = set.flatMap((l) => l.spots);
           return step(id, {
-            elims, focus: set.flatMap((l) => l.spots), units, digits: [d],
-            nudge: `Follow the ${d}s: a few ${bw} only allow ${d} in the same ${cw}.`,
-            text: `In ${bw} ${list(baseKs.map((k) => k + 1))}, ${d} can only go in ${cw} ${list(crossSet.map((x) => x + 1).sort())}. Those ${cw} get their ${d} from these ${bw}, so ${d} can be removed everywhere else in them.`,
+            elims, focus: spots, units, digits: [d], marks: Object.fromEntries(spots.map((i) => [i, bit])),
+            headline: `The ${d}s in ${bw} ${list(baseKs.map((k) => k + 1))} line up`,
+            nudge: `Follow the ${d}s. In ${WORD[n]} ${bw}, the ${d} can only go in the same ${WORD[n]} ${cw}. Can you see which?`,
+            text: `In ${bw} ${list(baseKs.map((k) => k + 1))}, the ${d} can only go in ${cw} ${list(sorted(crossSet).map((x) => x + 1))} (marked). So ${bw} ${list(baseKs.map((k) => k + 1))} put their ${d}s in those ${WORD[n]} ${cw}, and no other cell in ${cw} ${list(sorted(crossSet).map((x) => x + 1))} can be ${d}. Cross them out.`,
           });
         }
       }
@@ -223,9 +259,10 @@ function xyWing(values, cand) {
         }
         if (!elims.length) continue;
         return step("xy-wing", {
-          elims, focus: [p, w1, w2], units: [], digits: [z],
-          nudge: `Find a cell with two candidates that links two other two-candidate cells.`,
-          text: `${cellName(p)} is ${a} or ${b}. If it's ${a}, ${cellName(w1)} becomes ${z}; if it's ${b}, ${cellName(w2)} becomes ${z}. Either way one of them is ${z}, so no cell seeing both can be ${z}.`,
+          elims, focus: [p, w1, w2], units: [], digits: [z], marks: Object.fromEntries([p, w1, w2].map((i) => [i, cand[i]])),
+          headline: `${cellName(p)}, ${cellName(w1)} and ${cellName(w2)} force a ${z}`,
+          nudge: `Find a cell with only two options that links two other two-option cells. Together they force a digit.`,
+          text: `${cellName(p)} is ${a} or ${b}. If it's ${a}, then ${cellName(w1)} can't be ${a}, so it's ${z}. If it's ${b}, then ${cellName(w2)} can't be ${b}, so it's ${z}. Either way one of those two is a ${z}, so any cell that sees both of them can't be ${z}. Cross the ${z} out of those cells.`,
         });
       }
     }

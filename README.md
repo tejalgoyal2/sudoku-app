@@ -12,7 +12,7 @@ I wanted a Sudoku without banner ads, a coin shop or a pop-up begging for five s
 
 - **A daily puzzle.** Same grid for everyone, so you can argue about it in the group chat. Easy on Monday, mean by Sunday.
 - **Hints that teach.** First a nudge, then the actual technique explained on the board, then the move. Your brain does the work; the hint just holds the flashlight.
-- **Challenges.** Blitz gives you a minute and trades seconds for correct digits. Sudden Death gives you one mistake. Fog only shows you what's near your cursor. Pen Only and Purist take your notes and hints away.
+- **Challenges.** Blitz gives you 50 seconds and trades time for correct digits. Sudden Death gives you one mistake. Fog only shows you what's near your cursor. Pen Only and Purist take your notes and hints away.
 - **11 themes.** Each one has its own board, keys and digits, not just a new paint job.
 - **Zen mode.** No timer, no mistakes counter, no side panel. Just you and 81 squares.
 - **On your phone.** Add it to your home screen and it opens full screen, works offline and looks like a real app. No app store involved.
